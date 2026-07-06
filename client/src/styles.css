@@ -1,0 +1,144 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Plannio — premium scheduling-poll landing page design system.
+ * Modern Scandinavian: large whitespace, Inter, 16px radius, soft shadows,
+ * subtle borders, restrained indigo gradients. Light mode only.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --shadow-soft: 0 1px 2px -1px oklch(0.2 0.05 277 / 0.06), 0 2px 8px -2px oklch(0.2 0.05 277 / 0.06);
+  --shadow-card: 0 1px 3px oklch(0.2 0.05 277 / 0.05), 0 12px 28px -12px oklch(0.2 0.05 277 / 0.12);
+  --shadow-float: 0 8px 24px -8px oklch(0.2 0.05 277 / 0.14), 0 24px 60px -20px oklch(0.4 0.18 277 / 0.18);
+  --shadow-glow: 0 16px 50px -12px oklch(0.55 0.22 277 / 0.45);
+}
+
+:root {
+  --radius: 1rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.03 274);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.03 274);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.03 274);
+
+  --primary: oklch(0.557 0.224 277);
+  --primary-foreground: oklch(0.99 0.005 277);
+  --primary-soft: oklch(0.95 0.03 277);
+
+  --secondary: oklch(0.97 0.006 274);
+  --secondary-foreground: oklch(0.27 0.03 274);
+
+  --muted: oklch(0.974 0.005 274);
+  --muted-foreground: oklch(0.53 0.025 274);
+
+  --accent: oklch(0.96 0.02 277);
+  --accent-foreground: oklch(0.35 0.12 277);
+
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0.003 277);
+
+  --success: oklch(0.7 0.16 156);
+  --success-foreground: oklch(0.99 0.003 156);
+
+  --border: oklch(0.925 0.008 274);
+  --input: oklch(0.925 0.008 274);
+  --ring: oklch(0.557 0.224 277);
+
+  --gradient-primary: linear-gradient(135deg, oklch(0.6 0.21 277), oklch(0.62 0.19 300));
+  --gradient-hero: radial-gradient(60% 60% at 50% 0%, oklch(0.95 0.04 277 / 0.7), transparent 70%);
+  --gradient-surface: linear-gradient(180deg, oklch(0.99 0.004 277), oklch(0.975 0.008 277));
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    background-color: oklch(0.557 0.224 277 / 0.18);
+  }
+}
+
+@utility text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, oklch(0.55 0.05 277 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.55 0.05 277 / 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+@utility glass {
+  background: oklch(1 0 0 / 0.72);
+  backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid oklch(0.92 0.01 277 / 0.7);
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@utility animate-float {
+  animation: float-slow 6s ease-in-out infinite;
+}

@@ -1,0 +1,242 @@
+const express = require("express");
+const { createOAuthState } = require("../auth/session");
+const {
+  getDiscordConfig,
+  getDiscordAuthUrl,
+  exchangeDiscordCode,
+  fetchDiscordUser,
+} = require("../auth/discord");
+const {
+  getSlackConfig,
+  getSlackAuthUrl,
+  exchangeSlackCode,
+  fetchSlackUser,
+} = require("../auth/slack");
+const {
+  upsertDiscordUser,
+  upsertSlackUser,
+  serializeUser,
+  findUserByEmailWithPassword,
+  createUserWithPassword,
+} = require("../auth/users");
+const { verifyPassword } = require("../auth/password");
+
+const router = express.Router();
+
+function getAppUrl() {
+  return process.env.APP_URL || "http://localhost:3000";
+}
+
+function redirectWithError(res, message) {
+  const params = new URLSearchParams({ error: message });
+  res.redirect(`${getAppUrl()}/login?${params.toString()}`);
+}
+
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function validateEmail(email) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error("Enter a valid email address");
+  }
+}
+
+function validateDisplayName(displayName) {
+  if (!displayName || displayName.length < 1) {
+    throw new Error("Enter a display name");
+  }
+  if (displayName.length > 60) {
+    throw new Error("Display name is too long");
+  }
+}
+
+function validatePassword(password) {
+  if (typeof password !== "string" || password.length < 8) {
+    throw new Error("Password must be at least 8 characters");
+  }
+}
+
+router.get("/providers", (_req, res) => {
+  res.json({
+    discord: Boolean(getDiscordConfig()),
+    slack: Boolean(getSlackConfig()),
+    google: false,
+    apple: false,
+  });
+});
+
+router.get("/me", (req, res) => {
+  if (!req.session?.userId) {
+    return res.status(401).json({ user: null });
+  }
+
+  res.json({ user: req.session.user });
+});
+
+router.get("/discord", (req, res) => {
+  if (!getDiscordConfig()) {
+    return res.status(503).json({ error: "Discord login is not configured yet" });
+  }
+
+  const state = createOAuthState();
+  req.session.oauthState = state;
+
+  req.session.save((error) => {
+    if (error) {
+      console.error("Session save fejl:", error.message);
+      return redirectWithError(res, "Database connection failed — check DATABASE_URL and SSL");
+    }
+    res.redirect(getDiscordAuthUrl(state));
+  });
+});
+
+router.get("/discord/callback", async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error) {
+    return redirectWithError(res, "Discord login was cancelled");
+  }
+
+  if (!code || !state || state !== req.session.oauthState) {
+    return redirectWithError(res, "Invalid login request");
+  }
+
+  delete req.session.oauthState;
+
+  try {
+    const token = await exchangeDiscordCode(code);
+    const discordUser = await fetchDiscordUser(token.access_token);
+    // Hvis brugeren allerede er logget ind, knyttes Discord til den eksisterende konto
+    const user = await upsertDiscordUser(discordUser, req.session.userId || null);
+
+    req.session.userId = user.id;
+    req.session.user = serializeUser(user);
+
+    req.session.save((saveError) => {
+      if (saveError) {
+        return redirectWithError(res, "Could not create session");
+      }
+      res.redirect(getAppUrl());
+    });
+  } catch (callbackError) {
+    console.error("Discord callback fejl:", callbackError.message);
+    redirectWithError(res, "Login failed — try again");
+  }
+});
+
+router.get("/slack", (req, res) => {
+  if (!getSlackConfig()) {
+    return res.status(503).json({ error: "Slack login is not configured yet" });
+  }
+
+  const state = createOAuthState();
+  req.session.slackOauthState = state;
+
+  req.session.save((error) => {
+    if (error) {
+      console.error("Session save fejl:", error.message);
+      return redirectWithError(res, "Database connection failed — check DATABASE_URL and SSL");
+    }
+    res.redirect(getSlackAuthUrl(state));
+  });
+});
+
+router.get("/slack/callback", async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error) {
+    return redirectWithError(res, "Slack login was cancelled");
+  }
+
+  if (!code || !state || state !== req.session.slackOauthState) {
+    return redirectWithError(res, "Invalid login request");
+  }
+
+  delete req.session.slackOauthState;
+
+  try {
+    const token = await exchangeSlackCode(code);
+    const slackUser = await fetchSlackUser(token.access_token);
+    // If the user is already logged in, link Slack to the existing account instead.
+    const user = await upsertSlackUser(slackUser, req.session.userId || null);
+
+    req.session.userId = user.id;
+    req.session.user = serializeUser(user);
+
+    req.session.save((saveError) => {
+      if (saveError) {
+        return redirectWithError(res, "Could not create session");
+      }
+      res.redirect(getAppUrl());
+    });
+  } catch (callbackError) {
+    console.error("Slack callback fejl:", callbackError.message);
+    redirectWithError(res, "Login failed — try again");
+  }
+});
+
+router.post("/register", async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || "");
+    const displayName = String(req.body.displayName || "").trim();
+
+    validateEmail(email);
+    validateDisplayName(displayName);
+    validatePassword(password);
+
+    const existing = await findUserByEmailWithPassword(email);
+    if (existing) {
+      return res.status(409).json({ error: "An account with this email already exists" });
+    }
+
+    const user = await createUserWithPassword({ email, password, displayName });
+
+    req.session.userId = user.id;
+    req.session.user = serializeUser(user);
+    req.session.save((error) => {
+      if (error) {
+        return res.status(500).json({ error: "Could not create session" });
+      }
+      res.status(201).json({ user: req.session.user });
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const password = String(req.body.password || "");
+
+    const user = await findUserByEmailWithPassword(email);
+    if (!user || !user.password_hash || !verifyPassword(password, user.password_hash)) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    req.session.userId = user.id;
+    req.session.user = serializeUser(user);
+    req.session.save((error) => {
+      if (error) {
+        return res.status(500).json({ error: "Could not create session" });
+      }
+      res.json({ user: req.session.user });
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.post("/logout", (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      return res.status(500).json({ error: "Could not log out" });
+    }
+    res.clearCookie("plannio.sid");
+    res.json({ ok: true });
+  });
+});
+
+module.exports = router;

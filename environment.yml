@@ -1,0 +1,6 @@
+name: plannio
+channels:
+  - conda-forge
+dependencies:
+  - nodejs=20
+  - git
