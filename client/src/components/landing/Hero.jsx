@@ -22,7 +22,7 @@ export function Hero() {
             <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-semibold text-primary">
               <Sparkles className="h-3 w-3" /> Date polls
             </span>
-            With Discord updates
+            With Discord &amp; Slack updates
           </motion.a>
 
           <motion.h1
@@ -42,8 +42,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.12 }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground"
           >
-            Create a date poll with calendar or list view, share the link in Discord, and get channel
-            updates when people respond. Require Discord login — or let people vote with just a name.
+            Create a date poll with calendar or list view, share the link in Discord or Slack, and get
+            channel updates when people respond. Require Discord or Slack login — or let people vote
+            with just a name.
           </motion.p>
 
           <motion.div

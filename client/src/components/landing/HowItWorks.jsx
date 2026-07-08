@@ -6,19 +6,19 @@ const steps = [
     icon: <PenLine className="h-6 w-6" />,
     step: "01",
     title: "Propose dates",
-    body: "Sign in with Discord, name your poll, and pick dates in calendar or list view. Add ranges, times, or all-day options — and optionally connect a Discord channel.",
+    body: "Sign in with Discord or Slack, name your poll, and pick dates in calendar or list view. Add ranges, times, or all-day options — and optionally connect a Discord and/or Slack channel.",
   },
   {
     icon: <Share2 className="h-6 w-6" />,
     step: "02",
     title: "Share the link",
-    body: "Send the poll link in Discord. Participants vote with Discord login or just a name — you choose. Watch who has responded live.",
+    body: "Send the poll link in Discord or Slack. Participants vote with Discord or Slack login or just a name — you choose. Watch who has responded live.",
   },
   {
     icon: <MessageSquare className="h-6 w-6" />,
     step: "03",
     title: "Stay updated",
-    body: "Plannio posts updates in your Discord channel — new votes, selected dates, and a message when everyone expected has responded.",
+    body: "Plannio posts updates in your Discord and/or Slack channel — new votes, selected dates, and a message when everyone expected has responded.",
   },
 ];
 
@@ -30,7 +30,7 @@ export function HowItWorks() {
           <SectionHeading
             eyebrow="How it works"
             title="From idea to answers in three steps"
-            subtitle="Create a poll, share the link, and let Plannio keep you updated in Discord."
+            subtitle="Create a poll, share the link, and let Plannio keep you updated in Discord and Slack."
           />
         </Reveal>
 

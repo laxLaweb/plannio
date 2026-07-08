@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CreatePollButton } from "@/components/polls/CreatePollButton";
 import { Reveal } from "./Reveal";
@@ -15,7 +16,8 @@ export function FinalCTA() {
               Ready to find the right time?
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg text-primary-foreground/85">
-              Create your first date poll, share it in Discord, and get notified when people respond.
+              Create your first date poll, share it in Discord or Slack, and get notified when people
+              respond.
             </p>
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <CreatePollButton
@@ -30,11 +32,11 @@ export function FinalCTA() {
                 className="text-primary-foreground hover:bg-white/15 hover:text-primary-foreground"
                 asChild
               >
-                <a href="#showcase">See how it works</a>
+                <Link to="/discord-scheduling">See Discord &amp; Slack guides</Link>
               </Button>
             </div>
             <p className="mt-6 text-sm text-primary-foreground/70">
-              Free · Discord login · Discord updates
+              Free · Discord &amp; Slack login · Channel updates
             </p>
           </div>
         </div>

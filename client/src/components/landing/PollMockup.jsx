@@ -9,7 +9,7 @@ const options = [
 
 export function PollMockup() {
   return (
-    <div className="relative">
+    <div className="relative" aria-hidden="true">
       <div className="absolute -inset-6 -z-10 rounded-[2.5rem] [background:var(--gradient-hero)] blur-2xl" />
 
       <motion.div
@@ -61,7 +61,13 @@ export function PollMockup() {
           ))}
         </div>
 
-        <button className="mt-4 w-full rounded-2xl bg-foreground py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90">
+        <button
+          type="button"
+          disabled
+          aria-hidden="true"
+          tabIndex={-1}
+          className="mt-4 w-full rounded-2xl bg-foreground py-3 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+        >
           Save my response
         </button>
       </motion.div>
@@ -76,7 +82,7 @@ export function PollMockup() {
           <Check className="h-5 w-5" strokeWidth={2.5} />
         </span>
         <div>
-          <p className="text-xs font-semibold text-foreground">New vote in Discord</p>
+          <p className="text-xs font-semibold text-foreground">New vote in Discord &amp; Slack</p>
           <p className="text-[11px] text-muted-foreground">Alex can do Fri Jul 4 – Sun Jul 6</p>
         </div>
       </motion.div>

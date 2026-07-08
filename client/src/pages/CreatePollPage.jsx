@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { DatePickerCalendar } from "@/components/polls/DatePickerCalendar";
 import { ChannelUpdates } from "@/components/polls/ChannelUpdates";
+import { PageMeta } from "@/components/PageMeta";
 import { useAuth } from "@/context/AuthContext";
 import { createPoll } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -90,6 +91,7 @@ export function CreatePollPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="Create a poll" noindex />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center text-muted-foreground">Loading...</div>
       </div>
@@ -99,6 +101,7 @@ export function CreatePollPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="Create a poll" noindex />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center px-5">
           <div className="max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-card">
@@ -199,6 +202,7 @@ export function CreatePollPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageMeta title="Create a poll" noindex />
       <Navbar showNavLinks={false} />
       <div className="mx-auto max-w-3xl px-5 pb-10 pt-24 sm:px-8 sm:pt-28">
         <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Create new poll</h1>

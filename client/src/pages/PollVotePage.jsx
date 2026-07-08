@@ -3,7 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Calendar, CalendarRange, Check, Lock, Sun, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
-import { DiscordIcon, startDiscordLogin } from "@/components/auth/LoginOptions";
+import { PageMeta } from "@/components/PageMeta";
+import { DiscordIcon, SlackIcon, startDiscordLogin, startSlackLogin } from "@/components/auth/LoginOptions";
 import { useAuth } from "@/context/AuthContext";
 import { getPublicPoll, submitVote } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -132,9 +133,13 @@ export function PollVotePage() {
   const showLoginGate = !isLocked && requiresLogin && !user;
   const canVote = !isLocked && (requiresLogin ? Boolean(user) : true);
 
+  const voteTitle = poll ? `Vote: ${poll.title}` : "Vote";
+  const votePath = slug ? `/p/${slug}` : null;
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="Vote" description="Pick the dates that work for you." path={votePath} />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center text-muted-foreground">Loading...</div>
       </div>
@@ -144,6 +149,7 @@ export function PollVotePage() {
   if (error && !poll) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="Vote" description="Pick the dates that work for you." path={votePath} />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center px-5">
           <div className="max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-card">
@@ -160,6 +166,11 @@ export function PollVotePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageMeta
+        title={voteTitle}
+        description="Pick the dates that work for you."
+        path={votePath}
+      />
       <Navbar showNavLinks={false} />
       <div className="mx-auto max-w-2xl px-5 pb-10 pt-24 sm:px-8 sm:pt-28">
         <div className="flex items-center justify-end">
@@ -198,16 +209,27 @@ export function PollVotePage() {
             </div>
             <h2 className="mt-4 text-lg font-bold text-foreground">Sign in to vote</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              The creator requires login. Sign in with Discord to mark which dates work for you.
+              The creator requires login. Sign in with Discord or Slack to mark which dates work for
+              you.
             </p>
-            <button
-              type="button"
-              onClick={() => startDiscordLogin(`/p/${slug}`)}
-              className="mt-6 inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[#5865F2] px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-[#4752C4]"
-            >
-              <DiscordIcon />
-              Continue with Discord
-            </button>
+            <div className="mt-6 space-y-3">
+              <button
+                type="button"
+                onClick={() => startDiscordLogin(`/p/${slug}`)}
+                className="inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[#5865F2] px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-[#4752C4]"
+              >
+                <DiscordIcon />
+                Continue with Discord
+              </button>
+              <button
+                type="button"
+                onClick={() => startSlackLogin(`/p/${slug}`)}
+                className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-5 py-3.5 text-sm font-semibold text-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:bg-secondary"
+              >
+                <SlackIcon />
+                Continue with Slack
+              </button>
+            </div>
           </div>
         ) : (
           canVote && (

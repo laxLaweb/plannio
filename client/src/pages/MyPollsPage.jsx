@@ -4,6 +4,7 @@ import { Calendar, Check, Lock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { CreatePollButton } from "@/components/polls/CreatePollButton";
+import { PageMeta } from "@/components/PageMeta";
 import { useAuth } from "@/context/AuthContext";
 import { listPolls } from "@/lib/api";
 
@@ -29,6 +30,7 @@ export function MyPollsPage() {
   if (authLoading || (loading && user)) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="My polls" noindex />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center text-muted-foreground">Loading...</div>
       </div>
@@ -38,6 +40,7 @@ export function MyPollsPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="My polls" noindex />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center px-5">
           <div className="max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-card">
@@ -53,6 +56,7 @@ export function MyPollsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageMeta title="My polls" noindex />
       <Navbar showNavLinks={false} />
       <div className="mx-auto max-w-3xl px-5 pb-10 pt-24 sm:px-8 sm:pt-28">
         <div className="flex items-center justify-between">

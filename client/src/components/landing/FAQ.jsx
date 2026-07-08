@@ -6,14 +6,14 @@ import {
 } from "@/components/ui/accordion";
 import { Reveal, SectionHeading } from "./Reveal";
 
-const faqs = [
+export const faqs = [
   {
     q: "Do participants need an account to vote?",
-    a: "You decide when creating the poll. With \"Require login to vote\" enabled, participants sign in with Discord. Turn it off and they can vote with just a name — and anyone can edit responses from people who weren't logged in.",
+    a: "You decide when creating the poll. With \"Require login to vote\" enabled, participants sign in with Discord or Slack. Turn it off and they can vote with just a name — and anyone can edit responses from people who weren't logged in.",
   },
   {
-    q: "How do Discord updates work?",
-    a: "When you create a poll with Discord linked to your account, you can connect a channel. Plannio posts when the poll is created, when someone votes, and when all expected participants have responded. No bot invite needed — you pick the channel in Discord.",
+    q: "How do Discord and Slack updates work?",
+    a: "When you create a poll, you can connect a Discord channel, a Slack channel, or both. Plannio posts when the poll is created, when someone votes, and when all expected participants have responded. No bot invite needed — you pick the channel during Discord's or Slack's own connect screen.",
   },
   {
     q: "Can I pick dates across multiple days?",
@@ -21,11 +21,11 @@ const faqs = [
   },
   {
     q: "What is \"expected responses\"?",
-    a: "It's how many people you expect to respond. Plannio shows progress (e.g. 3 / 8 responded) and sends a Discord message when everyone has voted. The creator counts automatically as one response.",
+    a: "It's how many people you expect to respond. Plannio shows progress (e.g. 3 / 8 responded) and sends a Discord or Slack message when everyone has voted. The creator counts automatically as one response.",
   },
   {
     q: "Can I sign in with Google or Apple?",
-    a: "Not yet — login is currently via Discord. Google and Apple are coming soon, and multiple login methods can be linked to the same Plannio account.",
+    a: "Not yet — login is currently via Discord or Slack. Google and Apple are coming soon, and multiple login methods can be linked to the same Plannio account.",
   },
   {
     q: "Is Plannio free?",

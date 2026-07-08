@@ -2,7 +2,7 @@ import { Reveal } from "./Reveal";
 
 export function LogoCloud() {
   return (
-    <section className="border-y border-border bg-secondary/30 py-12">
+    <section className="border-y border-border bg-secondary/30 py-12" aria-label="Use cases">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal>
           <p className="text-center text-sm font-medium text-muted-foreground">

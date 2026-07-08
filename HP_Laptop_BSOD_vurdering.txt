@@ -1,0 +1,162 @@
+======================================================================
+ HP Laptop 17-cp2xxx (Windows 11) - Fejlvurdering af BSOD/ustabilitet
+======================================================================
+Dato: 07-07-2026
+Bemaerk: Denne vurdering omhandler et separat computerproblem og har
+intet med projektet eller den nuvaerende arbejdscomputer at goere.
+
+
+----------------------------------------------------------------------
+ DEN VIGTIGSTE LEDETRAAD
+----------------------------------------------------------------------
+Det mest afsloerende er MANGFOLDIGHEDEN af stopkoder. Naar man ser
+mange FORSKELLIGE bugchecks (IRQL_NOT_LESS_OR_EQUAL,
+DRIVER_OVERRAN_STACK_BUFFER, CLOCK_WATCHDOG_TIMEOUT,
+UNEXPECTED_STORE_EXCEPTION osv.), peger det sjaeldent paa en enkelt
+driver. Det er det klassiske fingeraftryk for USTABIL HARDWARE
+(RAM, stroemforsyning, CPU/chipset) eller et lavniveau
+firmware-/stroemstyringsproblem.
+
+To detaljer skiller sig ud:
+
+  * CLOCK_WATCHDOG_TIMEOUT (0x101)
+      = en CPU-kerne svarede ikke paa en interrupt i tide.
+      Staerkt forbundet med CPU / bundkort / stroemstyring og
+      naesten aldrig en simpel driver.
+
+  * 0x00000154 = UNEXPECTED_STORE_EXCEPTION
+      = Windows' memory store manager fejlede.
+      Haenger typisk sammen med RAM eller SSD/pagefile.
+      At der ikke laengere skrives dumps passer med et
+      storage-/hukommelsesproblem.
+
+Selvopvaagningen (varm underside, blaeser koerer, sort skaerm, skal
+tvangsslukkes) er et MODERN STANDBY-nedbrud: den gaar ikke rigtigt i
+dvale men koger i stedet. Det kan i sig selv give termisk
+ustabilitet, og "Wake on Magic Packet / Pattern Match" goer det
+vaerre.
+
+
+----------------------------------------------------------------------
+ MULIGE AARSAGER MED SANDSYNLIGHED
+----------------------------------------------------------------------
+(Kvalificerede skoen ud fra symptomerne - ikke facit.)
+
+  ~25%  RAM-ustabilitet (ikke fanget af Windows-testen)
+        Windows Memory Diagnostic er for svag. 0x154 + varierede
+        koder passer perfekt. Kraever MemTest86.
+
+  ~25%  Bundkort / CPU / stroemstyring (VRM/chipset)
+        CLOCK_WATCHDOG_TIMEOUT + mange koder + kun 1 aar gammel
+        = klassisk hardwarefejl.
+
+  ~15%  SSD / NVMe firmware / pagefile
+        0x154 er storage-relateret, og dumps skrives ikke laengere.
+        SMART "Healthy" udelukker det ikke.
+
+  ~15%  Modern Standby / stroemstyrings-firmware
+        (selvopvaagning + varme)
+        Forklarer opvaagning/overophedning direkte, kan udloese
+        termiske BSOD.
+
+  ~10%  Realtek Wi-Fi-driver (rtwlan / ndis)
+        ndis-relateret BSOD + Wake-indstillinger. Men forklarer
+        ikke alle koderne.
+
+   ~7%  AMD chipset-driver (17-cp2xxx er AMD)
+        Stroemstyring/C-states kan give IRQL/clock-fejl.
+
+   ~3%  Termisk problem (stoev, pasta, koeling)
+        Forvaerret af den fejlede standby; sjaeldnere hovedaarsag
+        paa en 1-aarig maskine.
+
+SAMLET INDTRYK: Overvaegt af hardware/firmware (de foerste 4 punkter
+udgoer ca. 80%). Laas dig derfor ikke fast paa software alene.
+
+
+----------------------------------------------------------------------
+ KONKRETE NAESTE SKRIDT (prioriteret raekkefoelge)
+----------------------------------------------------------------------
+
+1) FIND DET AFGOERENDE BEVIS (5 min)
+   - Aabn Event Viewer -> Windows Logs -> System og filtrer efter
+     kilden "WHEA-Logger". WHEA-fejl = hardware melder fejl
+     (RAM/CPU/PCIe). Findes der WHEA-events, styrker det
+     hardware-hypotesen markant.
+   - Kig ogsaa i Reliability Monitor for moenster i nedbruddene.
+
+2) DAEMP SELVOPVAAGNING / OVEROPHEDNING NU
+   - Enhedshaandtering -> Wi-Fi-adapter -> Stroemstyring:
+     slaa "Wake on Magic Packet" og "Wake on Pattern Match" fra.
+   - Koer:  powercfg /waketimers
+            powercfg /lastwake
+     for at se hvad der vaekker den.
+   - Koer:  powercfg /devicequery wake_armed
+     og fjern wake fra ikke-noedvendige enheder.
+
+3) RIGTIG HARDWARETEST (afgoerende)
+   - MemTest86 (bootbar USB, IKKE Windows-vaerktoejet):
+     mindst 4 fulde passes, gerne natten over.
+   - HP PC Hardware Diagnostics (UEFI): tryk F2 ved opstart ->
+     koer Extensive / System-test. Noter evt. fejl-ID.
+   - HWiNFO64 for at logge CPU-temperaturer og se om den
+     overophedes.
+
+4) SOFTWARE-OPRYDNING (hvis WHEA er tom)
+   - Geninstaller Realtek Wi-Fi rent med DDU + AMD chipset-driver
+     fra HP/AMD.
+   - Fix dump-skrivning: saet pagefile paa C:, vaelg
+     "Small memory dump", og tjek om C:\Windows\Minidump genskabes.
+
+5) TIL SIDST
+   - Reparationsinstallation (in-place upgrade) er fornuftig som
+     software-nulstilling.
+   - MEN: maskinen er ca. 1 aar og formentlig stadig i garanti.
+     Hvis MemTest86 eller HP UEFI-diagnostik viser fejl, eller der
+     er WHEA-events -> gaa direkte i GARANTISAG hos HP i stedet for
+     at spilde tid paa software.
+
+
+----------------------------------------------------------------------
+ KORT SAGT
+----------------------------------------------------------------------
+Koer WHEA-check + MemTest86 + HP UEFI-diagnostik FOER
+reparationsinstallationen. De tre ting fortaeller hurtigt, om det er
+hardware (garantisag) eller software.
+
+
+======================================================================
+ REFERENCEDATA (fra fejlsoegningen)
+======================================================================
+Hardware:
+  - HP Laptop 17-cp2xxx (AMD), Windows 11
+  - SSD: SK hynix BC901 HFS512GEJ9X108N - SMART: Healthy
+  - BIOS: F.19 (opdateret under fejlsoegningen)
+  - Wi-Fi: Realtek RTL8821CE 802.11ac PCIe
+           Driver 2024.10.231.0 (05-11-2025)
+
+Wake-indstillinger (driver):
+  - Wake on Magic Packet = Enabled
+  - Wake on Pattern Match = Enabled
+  - NS Offload for WoWLAN = Enabled
+
+Stroem: Modern Standby (S0 Low Power Idle),
+        ingen Hibernate, ingen Fast Startup.
+
+Sete stopkoder:
+  - 0x00000154 (UNEXPECTED_STORE_EXCEPTION)
+  - SYSTEM_THREAD_EXCEPTION_NOT_HANDLED
+  - IRQL_NOT_LESS_OR_EQUAL  (what failed: ntoskrnl.exe)
+  - DRIVER_OVERRAN_STACK_BUFFER (0xF7)
+  - CLOCK_WATCHDOG_TIMEOUT (0x101)
+  - En BSOD naevnte specifikt: ndiskm.sys
+
+Allerede udfoert:
+  - SFC /scannow: ingen fejl
+  - Windows Memory Diagnostic: ingen fejl (men svag test)
+  - Get-PhysicalDisk: Healthy
+  - BIOS opdateret (F.19)
+  - Enhedshaandtering: ingen gule advarsler
+  - Windows Update: opdateret
+  - Dumps: nyeste BSOD'er skriver ikke laengere minidumps
+======================================================================

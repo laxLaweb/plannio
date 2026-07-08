@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
@@ -33,9 +34,28 @@ app.use("/api", apiRoutes);
 
 if (isProduction) {
   const clientDist = path.join(__dirname, "..", "client", "dist");
+
+  app.use((req, res, next) => {
+    const host = req.headers.host;
+    if (host && host.startsWith("www.")) {
+      return res.redirect(301, `https://${host.slice(4)}${req.originalUrl}`);
+    }
+    if (req.headers["x-forwarded-proto"] === "http") {
+      return res.redirect(301, `https://${host}${req.originalUrl}`);
+    }
+    next();
+  });
+
   app.use(express.static(clientDist));
 
-  app.get("*", (_req, res) => {
+  app.get("*", (req, res) => {
+    const urlPath = req.path.replace(/\/$/, "") || "";
+    if (urlPath) {
+      const prerendered = path.join(clientDist, urlPath, "index.html");
+      if (fs.existsSync(prerendered)) {
+        return res.sendFile(prerendered);
+      }
+    }
     res.sendFile(path.join(clientDist, "index.html"));
   });
 }

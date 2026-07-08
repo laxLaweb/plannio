@@ -18,11 +18,12 @@ const tabs = [
   { id: "create", label: "Create poll", icon: PencilRuler },
   { id: "vote", label: "Voting", icon: Vote },
   { id: "results", label: "Results", icon: BarChart3 },
-  { id: "discord", label: "Discord", icon: MessageSquare },
+  { id: "updates", label: "Updates", icon: MessageSquare },
 ];
 
 export function Showcase() {
   const [active, setActive] = useState("create");
+  const panelId = `showcase-panel-${active}`;
 
   return (
     <section id="showcase" className="py-24 sm:py-32">
@@ -31,18 +32,23 @@ export function Showcase() {
           <SectionHeading
             eyebrow="Product"
             title="What it looks like in practice"
-            subtitle="Create dates, share the link, and follow along in Discord — all in one flow."
+            subtitle="Create dates, share the link, and follow along in Discord and Slack — all in one flow."
           />
         </Reveal>
 
         <Reveal delay={0.05}>
-          <div className="mt-10 flex flex-wrap justify-center gap-2">
+          <div className="mt-10 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Product demo">
             {tabs.map((t) => {
               const Icon = t.icon;
               const on = active === t.id;
               return (
                 <button
                   key={t.id}
+                  type="button"
+                  role="tab"
+                  id={`showcase-tab-${t.id}`}
+                  aria-selected={on}
+                  aria-controls={`showcase-panel-${t.id}`}
                   onClick={() => setActive(t.id)}
                   className={cn(
                     "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all",
@@ -51,7 +57,7 @@ export function Showcase() {
                       : "border-border bg-card text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  <Icon className="h-4 w-4" /> {t.label}
+                  <Icon className="h-4 w-4" aria-hidden="true" /> {t.label}
                 </button>
               );
             })}
@@ -62,7 +68,12 @@ export function Showcase() {
           <div className="mt-10 rounded-3xl border border-border bg-gradient-to-b from-secondary/50 to-background p-3 shadow-float sm:p-5">
             <div className="overflow-hidden rounded-2xl border border-border bg-card">
               <BrowserBar />
-              <div className="min-h-[420px] p-5 sm:p-8">
+              <div
+                className="min-h-[420px] p-5 sm:p-8"
+                role="tabpanel"
+                id={panelId}
+                aria-labelledby={`showcase-tab-${active}`}
+              >
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={active}
@@ -74,7 +85,7 @@ export function Showcase() {
                     {active === "create" && <CreateScreen />}
                     {active === "vote" && <VoteScreen />}
                     {active === "results" && <ResultsScreen />}
-                    {active === "discord" && <DiscordScreen />}
+                    {active === "updates" && <UpdatesScreen />}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -88,7 +99,10 @@ export function Showcase() {
 
 function BrowserBar() {
   return (
-    <div className="flex items-center gap-2 border-b border-border bg-secondary/40 px-4 py-3">
+    <div
+      className="flex items-center gap-2 border-b border-border bg-secondary/40 px-4 py-3"
+      aria-hidden="true"
+    >
       <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.8_0.12_25)]" />
       <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.85_0.12_85)]" />
       <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.8_0.12_150)]" />
@@ -139,9 +153,14 @@ function CreateScreen() {
         </div>
       </div>
       <div className="rounded-2xl border border-border bg-secondary/30 p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Discord</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Discord &amp; Slack
+        </p>
         <div className="mt-3 rounded-xl border border-success/30 bg-success/10 px-3 py-2.5 text-sm font-medium text-success">
-          Channel connected
+          Discord channel connected
+        </div>
+        <div className="mt-2 rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-muted-foreground">
+          Connect Slack channel
         </div>
         <div className="mt-3 space-y-2 text-sm text-foreground">
           <p className="text-xs font-semibold text-muted-foreground">Expected responses</p>
@@ -192,7 +211,13 @@ function VoteScreen() {
           </div>
         ))}
       </div>
-      <button className="mt-5 w-full rounded-2xl bg-foreground py-3 text-sm font-semibold text-background">
+      <button
+        type="button"
+        disabled
+        aria-hidden="true"
+        tabIndex={-1}
+        className="mt-5 w-full rounded-2xl bg-foreground py-3 text-sm font-semibold text-background"
+      >
         Save response
       </button>
     </div>
@@ -235,37 +260,49 @@ function ResultsScreen() {
   );
 }
 
-function DiscordScreen() {
+function UpdatesScreen() {
   const messages = [
     {
       title: "📅 New poll: Weekend trip",
       body: "Proposed times + share link",
+      provider: "Discord",
+      color: "#5865F2",
     },
     {
       title: "🗳️ Alex responded",
       body: "Available: Fri Jul 4 – Sun Jul 6",
+      provider: "Slack",
+      color: "#4A154B",
     },
     {
       title: "🎉 Everyone responded: Weekend trip",
       body: "All 4 expected participants have voted",
+      provider: "Discord & Slack",
+      color: "#5865F2",
     },
   ];
   return (
     <div className="mx-auto max-w-lg">
-      <h3 className="text-lg font-bold tracking-tight text-foreground">Updates in Discord</h3>
+      <h3 className="text-lg font-bold tracking-tight text-foreground">Updates in Discord &amp; Slack</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Connect a channel when you create a poll — Plannio posts automatically.
+        Connect a Discord and/or Slack channel when you create a poll — Plannio posts automatically.
       </p>
       <div className="mt-6 space-y-3">
         {messages.map((m) => (
           <div key={m.title} className="rounded-2xl border border-border bg-background p-4">
             <div className="flex items-start gap-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#5865F2]/10 text-[#5865F2]">
+              <span
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-xl"
+                style={{ backgroundColor: `${m.color}1a`, color: m.color }}
+              >
                 <MessageSquare className="h-4 w-4" />
               </span>
               <div>
                 <p className="text-sm font-semibold text-foreground">{m.title}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{m.body}</p>
+                <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70">
+                  {m.provider}
+                </p>
               </div>
             </div>
           </div>

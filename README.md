@@ -97,6 +97,7 @@ Plannio understøtter social login via OAuth2 – samme princip som "Log ind med
 | Provider | Status |
 |----------|--------|
 | **Discord** | Klar |
+| **Slack** | Klar |
 | Google | Planlagt |
 | Apple | Planlagt |
 
@@ -160,9 +161,27 @@ Understøttede hændelser: afstemning oprettet (aktiv nu), ny stemme, tidspunkt 
 | `npm run dev` | Starter både server og client med hot reload |
 | `npm run dev:server` | Kun Express API |
 | `npm run dev:client` | Kun React dev server |
-| `npm run build` | Bygger React til `client/dist/` |
+| `npm run build` | Optimerer OG-billede, genererer sitemap/llms.txt, bygger React til `client/dist/` |
+| `npm run prerender` | Prerenderer offentlige sider til statisk HTML (kører automatisk på Heroku) |
 | `npm run db:migrate` | Kører database-migrationer |
 | `npm start` | Starter produktionsserver |
+
+Kræver **Node 20+** (se `engines` i root `package.json`). Sæt `SKIP_PRERENDER=1` for at springe prerender over lokalt.
+
+## SEO og indholdssider
+
+Offentlige marketing-sider (indexeres, prerenderes på deploy):
+
+| Route | Indhold |
+|-------|---------|
+| `/` | Landing page |
+| `/discord-scheduling`, `/slack-scheduling` | Integrationsguider |
+| `/use-cases/*` | Use cases (weekend trip, team meetings, game night) |
+| `/guides/*` | How-to guides |
+
+Kilde til routes: `scripts/public-routes.mjs` (bruges af sitemap, llms.txt og prerender).
+
+Slack OAuth opsættes som Discord — se `.env.example` for `SLACK_*` variabler.
 
 ## Heroku deployment
 

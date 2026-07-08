@@ -4,7 +4,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 const stories = [
   {
     quote:
-      "We used to bounce dates back and forth in Discord. Now we create a poll, share the link in the channel, and get notified when people respond.",
+      "We used to bounce dates back and forth in Slack. Now we create a poll, share the link in the channel, and get notified when people respond.",
     name: "Elena Marsh",
     role: "Team lead",
     initials: "EM",
@@ -20,7 +20,7 @@ const stories = [
   },
   {
     quote:
-      "The best part is seeing 3 / 8 responded and getting a Discord ping when everyone has voted. Then we know it's time to pick.",
+      "The best part is seeing 3 / 8 responded and getting a Discord or Slack ping when everyone has voted. Then we know it's time to pick.",
     name: "Priya Nair",
     role: "Project coordinator",
     initials: "PN",
@@ -36,7 +36,7 @@ export function Testimonials() {
           <SectionHeading
             eyebrow="Use cases"
             title="How people use Plannio"
-            subtitle="Date polls with clarity — especially when you're already coordinating in Discord."
+            subtitle="Date polls with clarity — especially when you're already coordinating in Discord or Slack."
           />
         </Reveal>
 

@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Bell, Calendar, CalendarRange, Check, Copy, Lock, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
+import { PageMeta } from "@/components/PageMeta";
 import { useAuth } from "@/context/AuthContext";
 import { getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -88,6 +89,7 @@ export function PollDetailPage() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="Poll" noindex />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center text-muted-foreground">Loading...</div>
       </div>
@@ -97,6 +99,7 @@ export function PollDetailPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="Poll" noindex />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center px-5">
           <div className="max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-card">
@@ -113,6 +116,7 @@ export function PollDetailPage() {
   if (error || !poll) {
     return (
       <div className="min-h-screen bg-background">
+        <PageMeta title="Poll" noindex />
         <Navbar showNavLinks={false} />
         <div className="grid min-h-screen place-items-center px-5">
           <div className="max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-card">
@@ -129,6 +133,7 @@ export function PollDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <PageMeta title={poll.title} noindex />
       <Navbar showNavLinks={false} />
       <div className="mx-auto max-w-3xl px-5 pb-10 pt-24 sm:px-8 sm:pt-28">
         <div className="inline-flex items-center gap-2 rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success">

@@ -6,14 +6,14 @@ const plan = {
   name: "Free",
   price: "$0",
   period: "forever",
-  desc: "Everything you need for date polls with Discord.",
+  desc: "Everything you need for date polls with Discord and Slack.",
   features: [
     "Unlimited date polls",
     "Calendar and list views",
     "Date ranges and time slots",
     "Shareable voting link",
-    "Discord login or name-only voting",
-    "Discord channel updates",
+    "Discord or Slack login, or name-only voting",
+    "Discord and Slack channel updates",
     "Expected responses and progress tracking",
     "Live results",
   ],
@@ -27,7 +27,7 @@ export function Pricing() {
           <SectionHeading
             eyebrow="Pricing"
             title="Free to use"
-            subtitle="Plannio is free right now — create polls, share them, and get Discord updates with no paywall."
+            subtitle="Plannio is free right now — create polls, share them, and get Discord and Slack updates with no paywall."
           />
         </Reveal>
 

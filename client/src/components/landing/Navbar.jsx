@@ -97,7 +97,7 @@ export function Navbar({ showNavLinks = true }) {
         <button
           className="grid h-10 w-10 place-items-center rounded-lg text-foreground md:hidden"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Open menu"
+          aria-label={open ? "Close menu" : "Open menu"}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>

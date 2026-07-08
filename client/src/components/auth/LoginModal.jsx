@@ -14,7 +14,7 @@ export function LoginModal({ open, onOpenChange }) {
         <DialogHeader>
           <DialogTitle>Sign in to create a poll</DialogTitle>
           <DialogDescription>
-            Sign in with Discord, or with your email and password, to create polls.
+            Sign in with Discord, Slack, or your email and password, to create polls.
           </DialogDescription>
         </DialogHeader>
 
