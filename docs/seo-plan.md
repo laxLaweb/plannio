@@ -17,7 +17,7 @@ order — Phase 1 is a prerequisite for everything else.
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Phase 1 — Technical SEO | **Mostly done** | 1.1–1.7 complete; sitemap/llms auto-generated on build; Lighthouse pending deploy |
+| Phase 1 — Technical SEO | **Done** | Lighthouse SEO 100/100; mobile perf 73 — re-measure after next deploy |
 | Phase 2 — On-page landing | **Done** | Guides strip, full a11y audit, breadcrumbs on content pages |
 | Phase 3 — Content pages | **Done** | All 8 pages live in codebase |
 | Phase 4 — GEO | **Mostly done** | prerender wired to heroku-postbuild; verify after deploy |
@@ -52,15 +52,21 @@ order — Phase 1 is a prerequisite for everything else.
 ## Current state (updated after implementation, July 2026)
 
 - [x] `client/public/` exists with `robots.txt`, `sitemap.xml`, `llms.txt`, `og-image.png`
-- [x] `client/index.html` has meta description, canonical, Open Graph, Twitter tags
+- [x] All title/meta/OG/Twitter tags rendered per-route by `PageMeta.jsx` (removed
+      static duplicates from `client/index.html` — React 19 hoists PageMeta tags)
 - [x] `PageMeta.jsx` on all routes; `JsonLd` on landing + content pages
 - [x] Footer links fixed; **Guides** + **Use cases** groups link to all content pages
 - [x] `server/index.js`: www/HTTPS redirects + prerendered HTML fallback
-- [x] Self-hosted Inter font; app pages lazy-loaded in `App.jsx`
+      (`express.static` with `redirect: false` so content URLs serve without
+      a trailing-slash 301)
+- [x] Self-hosted Inter font; app pages lazy-loaded in `App.jsx`; vendor chunks
+      split in `vite.config.js` (react / motion)
 - [x] Content routes: 2 integration guides, 3 use cases, 3 how-to guides (see Phase 3)
-- [ ] Prerender output not yet generated in production (`npm run prerender` after deploy)
+- [x] Prerender verified in production (Heroku build log + live HTML checked July 2026)
+- [x] Node pinned to `24.x` in root `package.json` (Heroku resolved 24.18.0)
 - [ ] Google Search Console / Bing / analytics not set up (Appendix A)
-- [ ] Lighthouse scores not recorded
+- [x] Lighthouse scores recorded July 9, 2026 (see 1.8): SEO 100/100,
+      performance 73 mobile / 96 desktop
 
 ---
 
@@ -259,16 +265,28 @@ app.use((req, res, next) => {
 Acceptance: `curl -I http://plannio.app/` and `https://www.plannio.app/` both
 301 to `https://plannio.app/` in production. (In local dev nothing changes.)
 
-### 1.8 Performance pass (Core Web Vitals) — [ ] partial
+### 1.8 Performance pass (Core Web Vitals) — [x] measured
 
 1. Self-host the Inter font … **[x]**
-2. Code-split the app pages … **[x]**
-3. Run Lighthouse … **[ ] Not run yet.**
+2. Code-split the app pages … **[x]** (+ vendor chunks react/motion in vite.config.js)
+3. Run Lighthouse … **[x] Run via pagespeed.web.dev July 9, 2026 against the
+   Heroku URL (before vendor-chunk split was deployed):**
+
+   | Category | Mobile | Desktop |
+   |----------|--------|---------|
+   | Performance | 73 | 96 |
+   | Accessibility | 96 | 96 |
+   | Best Practices | 96 | 96 |
+   | SEO | **100** | **100** |
+
+   Acceptance met: SEO score is 100 on both. Re-measure mobile performance
+   after the next deploy (vendor-chunk split + duplicate-meta fix included).
 4. **`scripts/optimize-og.mjs`** compresses `og-image.png` on each `npm run build`
-   (requires Node 20+; skips gracefully on older Node). **[x]**
+   (requires Node 20+; skips gracefully on older Node). **[x]** (1325 KB → 373 KB
+   confirmed in Heroku build log.)
 
 Acceptance: build succeeds, landing page renders identically, Lighthouse SEO
-score is 100.
+score is 100. **Met.**
 
 ---
 

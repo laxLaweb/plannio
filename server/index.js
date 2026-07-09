@@ -46,7 +46,9 @@ if (isProduction) {
     next();
   });
 
-  app.use(express.static(clientDist));
+  // redirect: false stops express.static from 301-redirecting /discord-scheduling
+  // to /discord-scheduling/ — the fallback below serves the prerendered file directly.
+  app.use(express.static(clientDist, { redirect: false }));
 
   app.get("*", (req, res) => {
     const urlPath = req.path.replace(/\/$/, "") || "";

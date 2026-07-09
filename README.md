@@ -134,8 +134,14 @@ heroku config:set DISCORD_CLIENT_ID=din-client-id
 heroku config:set DISCORD_CLIENT_SECRET=din-client-secret
 heroku config:set DISCORD_REDIRECT_URI=https://din-app.herokuapp.com/api/auth/discord/callback
 heroku config:set DISCORD_WEBHOOK_REDIRECT_URI=https://din-app.herokuapp.com/api/integrations/discord/callback
+heroku config:set SLACK_CLIENT_ID=din-client-id
+heroku config:set SLACK_CLIENT_SECRET=din-client-secret
+heroku config:set SLACK_REDIRECT_URI=https://din-app.herokuapp.com/api/auth/slack/callback
+heroku config:set SLACK_WEBHOOK_REDIRECT_URI=https://din-app.herokuapp.com/api/integrations/slack/callback
 heroku config:set APP_URL=https://din-app.herokuapp.com
 ```
+
+Husk at tilføje de samme callback-URL'er i Discord Developer Portal og Slack App-indstillingerne. Når du skifter til et custom domain, skal alle URL'er ovenfor opdateres.
 
 ## Discord-opdateringer (webhook)
 
