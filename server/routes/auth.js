@@ -66,9 +66,11 @@ router.get("/providers", (_req, res) => {
   });
 });
 
+// 200 (not 401) for anonymous visitors: a 401 here logs a console error in the
+// browser on every page load, which hurts Lighthouse Best Practices.
 router.get("/me", (req, res) => {
   if (!req.session?.userId) {
-    return res.status(401).json({ user: null });
+    return res.json({ user: null });
   }
 
   res.json({ user: req.session.user });

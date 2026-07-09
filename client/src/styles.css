@@ -79,7 +79,8 @@
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0.003 277);
 
-  --success: oklch(0.7 0.16 156);
+  /* Dark enough for >=4.5:1 contrast as text on white/tinted backgrounds (WCAG AA) */
+  --success: oklch(0.52 0.15 156);
   --success-foreground: oklch(0.99 0.003 156);
 
   --border: oklch(0.925 0.008 274);

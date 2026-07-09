@@ -25,6 +25,7 @@
     "dev:client": "npm run dev -w plannio-client"
   },
   "dependencies": {
+    "compression": "^1.8.1",
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

@@ -1,8 +1,22 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  lazy,
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import { LoginModal } from "@/components/auth/LoginModal";
-import { POST_LOGIN_REDIRECT_KEY } from "@/components/auth/LoginOptions";
+import { POST_LOGIN_REDIRECT_KEY } from "@/components/auth/constants";
+
+// Lazy: keeps Radix Dialog out of the main bundle — only anonymous visitors
+// who click "Create poll" ever need the modal.
+const LoginModal = lazy(() =>
+  import("@/components/auth/LoginModal").then((m) => ({ default: m.LoginModal })),
+);
 
 const CREATE_POLL_PATH = "/polls/new";
 
@@ -48,7 +62,11 @@ export function CreatePollProvider({ children }) {
   return (
     <CreatePollContext.Provider value={value}>
       {children}
-      <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
+      {loginModalOpen && (
+        <Suspense fallback={null}>
+          <LoginModal open={loginModalOpen} onOpenChange={setLoginModalOpen} />
+        </Suspense>
+      )}
     </CreatePollContext.Provider>
   );
 }

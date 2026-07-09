@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { loginWithPassword, registerWithPassword } from "@/lib/api";
 
-export const POST_LOGIN_REDIRECT_KEY = "plannio_post_login_redirect";
+export { POST_LOGIN_REDIRECT_KEY } from "./constants";
+import { POST_LOGIN_REDIRECT_KEY } from "./constants";
 
 export function DiscordIcon() {
   return (

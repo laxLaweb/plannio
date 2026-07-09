@@ -281,6 +281,16 @@ Acceptance: `curl -I http://plannio.app/` and `https://www.plannio.app/` both
 
    Acceptance met: SEO score is 100 on both. Re-measure mobile performance
    after the next deploy (vendor-chunk split + duplicate-meta fix included).
+
+   Fixes implemented July 9, 2026 based on the detailed report (deploy pending):
+   - **Console error** (Best Practices): `/api/auth/me` returned 401 for
+     anonymous visitors → now returns 200 with `user: null`.
+   - **Contrast** (Accessibility): `--success` darkened from `oklch(0.7 …)` to
+     `oklch(0.52 …)` so success text/badges meet WCAG AA on light backgrounds.
+   - **Document latency / render-blocking**: gzip via `compression` middleware
+     in `server/index.js` (prerendered HTML was served uncompressed, ~75 KB).
+   - **Unused JS**: `LoginModal` (Radix Dialog) lazy-loaded and only mounted
+     when opened; `POST_LOGIN_REDIRECT_KEY` moved to its own module.
 4. **`scripts/optimize-og.mjs`** compresses `og-image.png` on each `npm run build`
    (requires Node 20+; skips gracefully on older Node). **[x]** (1325 KB → 373 KB
    confirmed in Heroku build log.)

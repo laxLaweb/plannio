@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const express = require("express");
+const compression = require("compression");
 const cors = require("cors");
 require("dotenv").config({ override: true });
 
@@ -17,6 +18,8 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === "production";
 
 app.set("trust proxy", 1);
+
+app.use(compression());
 
 app.use(
   cors({
