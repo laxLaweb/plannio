@@ -70,6 +70,22 @@ export const PUBLIC_ROUTES = [
     llmsDesc: "multi-day poll options",
     breadcrumbCategory: "Guides",
   },
+  {
+    path: "/privacy",
+    changefreq: "yearly",
+    priority: "0.3",
+    llmsLabel: "Privacy policy",
+    llmsDesc: "how personal data is handled",
+    breadcrumbCategory: "Legal",
+  },
+  {
+    path: "/terms",
+    changefreq: "yearly",
+    priority: "0.3",
+    llmsLabel: "Terms of service",
+    llmsDesc: "terms for using Plannio",
+    breadcrumbCategory: "Legal",
+  },
 ];
 
 export const PRERENDER_PATHS = PUBLIC_ROUTES.map((r) => r.path);

@@ -12,6 +12,7 @@ const pollsRoutes = require("./routes/polls");
 const integrationsRoutes = require("./routes/integrations");
 const publicRoutes = require("./routes/public");
 const { processPendingReminders } = require("./polls/reminders");
+const { deleteExpiredPolls } = require("./polls/retention");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,9 +50,44 @@ if (isProduction) {
     next();
   });
 
+  // Security headers. COOP is deliberately omitted: it needs careful testing
+  // with the Discord/Slack OAuth popup flows before it can be enabled.
+  // CSP runs in Report-Only mode first, so the OAuth flows can be verified
+  // against real traffic before the policy is enforced.
+  app.use((_req, res, next) => {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    res.setHeader(
+      "Content-Security-Policy-Report-Only",
+      [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: https://cdn.discordapp.com https://*.slack-edge.com",
+        "connect-src 'self'",
+        "frame-ancestors 'self'",
+      ].join("; "),
+    );
+    next();
+  });
+
   // redirect: false stops express.static from 301-redirecting /discord-scheduling
   // to /discord-scheduling/ — the fallback below serves the prerendered file directly.
-  app.use(express.static(clientDist, { redirect: false }));
+  // Vite fingerprints everything under /assets, so those files can be cached forever;
+  // HTML and other root files stay at max-age=0 so deploys take effect immediately.
+  app.use(
+    express.static(clientDist, {
+      redirect: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    }),
+  );
 
   app.get("*", (req, res) => {
     const urlPath = req.path.replace(/\/$/, "") || "";
@@ -78,4 +114,14 @@ if (process.env.DATABASE_URL) {
 
   runReminders();
   setInterval(runReminders, REMINDER_INTERVAL_MS);
+
+  // GDPR: dagligt oprydningsjob der sletter polls uden aktivitet i 12 måneder.
+  const RETENTION_INTERVAL_MS = 24 * 60 * 60 * 1000;
+  const runRetention = () =>
+    deleteExpiredPolls().catch((error) => {
+      console.error("Retention job failed:", error.message);
+    });
+
+  runRetention();
+  setInterval(runRetention, RETENTION_INTERVAL_MS);
 }

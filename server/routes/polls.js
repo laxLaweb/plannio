@@ -6,6 +6,7 @@ const {
   getPollByIdForUser,
   getPollForNotify,
   lockPollOption,
+  deletePoll,
 } = require("../polls/model");
 const { notifyPollEvent } = require("../integrations/notify");
 const { formatOptionLabel } = require("../integrations/shared");
@@ -25,8 +26,17 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { title, description, options, discord, slack, reminders, expectedResponses, requireLogin } =
-      req.body;
+    const {
+      title,
+      description,
+      options,
+      discord,
+      slack,
+      reminders,
+      expectedResponses,
+      requireLogin,
+      hideVoterNames,
+    } = req.body;
 
     // Webhook-URL'erne kommer fra sessionen (OAuth-flowet), ikke fra klienten.
     const pendingDiscord = req.session.pendingDiscordWebhook;
@@ -62,8 +72,8 @@ router.post("/", async (req, res) => {
       reminders,
       expectedResponses,
       requireLogin,
+      hideVoterNames,
       voterName: req.session.user?.displayName || "Creator",
-      voterEmail: req.session.user?.email || null,
     });
 
     delete req.session.pendingDiscordWebhook;
@@ -91,6 +101,16 @@ router.get("/:id", async (req, res) => {
     res.json(poll);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// GDPR art. 17: ejeren kan slette en afstemning og alle tilhørende stemmer.
+router.delete("/:id", async (req, res) => {
+  try {
+    await deletePoll(req.params.id, req.session.userId);
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

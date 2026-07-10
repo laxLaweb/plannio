@@ -36,6 +36,13 @@ const groups = [
       { label: "Create poll", href: "/polls/new", router: true },
     ],
   },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy policy", href: "/privacy", router: true },
+      { label: "Terms of service", href: "/terms", router: true },
+    ],
+  },
 ];
 
 export function Footer() {
@@ -51,7 +58,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-5">
             {groups.map((g) => (
               <div key={g.title}>
                 <p className="text-sm font-semibold text-foreground">{g.title}</p>

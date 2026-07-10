@@ -143,8 +143,8 @@ async function createPoll({
   reminders,
   expectedResponses,
   requireLogin = false,
+  hideVoterNames = false,
   voterName,
-  voterEmail,
 }) {
   const cleanTitle = String(title || "").trim();
   if (!cleanTitle) {
@@ -158,6 +158,7 @@ async function createPoll({
   const cleanSlack = normalizeSlack(slack);
   const cleanExpected = normalizeExpected(expectedResponses);
   const cleanRequireLogin = requireLogin === true;
+  const cleanHideVoterNames = hideVoterNames === true;
 
   const wantsReminders =
     cleanDiscord?.events.includes("reminder") || cleanSlack?.events.includes("reminder");
@@ -171,11 +172,11 @@ async function createPoll({
 
     const pollResult = await client.query(
       `INSERT INTO polls
-         (user_id, title, slug, description, expected_responses, require_login,
+         (user_id, title, slug, description, expected_responses, require_login, hide_voter_names,
           discord_webhook_url, discord_webhook_id, discord_channel_id, discord_guild_id, discord_events,
           slack_webhook_url, slack_channel_name, slack_team_id, slack_events)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-       RETURNING id, user_id, title, slug, description, created_at, require_login`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+       RETURNING id, user_id, title, slug, description, created_at, require_login, hide_voter_names`,
       [
         userId,
         cleanTitle,
@@ -183,6 +184,7 @@ async function createPoll({
         cleanDescription,
         cleanExpected,
         cleanRequireLogin,
+        cleanHideVoterNames,
         cleanDiscord?.webhookUrl || null,
         cleanDiscord?.webhookId || null,
         cleanDiscord?.channelId || null,
@@ -207,9 +209,9 @@ async function createPoll({
 
       // Opretteren stemmer automatisk på alle datoer de foreslår
       await client.query(
-        `INSERT INTO votes (poll_option_id, user_id, voter_name, voter_email)
-         VALUES ($1, $2, $3, $4)`,
-        [optionResult.rows[0].id, userId, voterName || null, voterEmail || null],
+        `INSERT INTO votes (poll_option_id, user_id, voter_name)
+         VALUES ($1, $2, $3)`,
+        [optionResult.rows[0].id, userId, voterName || null],
       );
     }
 
@@ -297,7 +299,7 @@ async function countResponders(pollId) {
 async function getPollByIdForUser(pollId, userId) {
   const pollResult = await query(
     `SELECT id, title, slug, description, created_at,
-            expected_responses, require_login, locked_option_id,
+            expected_responses, require_login, hide_voter_names, locked_option_id,
             discord_events, slack_events,
             (discord_webhook_url IS NOT NULL) AS discord_connected,
             (slack_webhook_url IS NOT NULL) AS slack_connected
@@ -343,11 +345,24 @@ async function lockPollOption(pollId, userId, optionId) {
   }
 }
 
+// GDPR art. 17: poll-ejeren kan slette afstemningen inkl. alle stemmer.
+// ON DELETE CASCADE fjerner options, votes og reminders.
+async function deletePoll(pollId, userId) {
+  const result = await query(
+    `DELETE FROM polls WHERE id = $1 AND user_id = $2 RETURNING id`,
+    [pollId, userId],
+  );
+
+  if (!result.rows[0]) {
+    throw new Error("Poll not found");
+  }
+}
+
 // Intern brug: inkluderer webhook-URL – må ikke returneres til klienten.
 async function getPollForNotify(pollId) {
   const pollResult = await query(
     `SELECT id, title, slug, description, created_at,
-            expected_responses, completed_notified, locked_option_id,
+            expected_responses, completed_notified, locked_option_id, hide_voter_names,
             discord_webhook_url, discord_events,
             slack_webhook_url, slack_events
      FROM polls
@@ -371,4 +386,5 @@ module.exports = {
   getPollForNotify,
   markCompletedNotified,
   lockPollOption,
+  deletePoll,
 };

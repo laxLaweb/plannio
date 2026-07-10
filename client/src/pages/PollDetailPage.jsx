@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { Bell, Calendar, CalendarRange, Check, Copy, Lock, Sun } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Bell, Calendar, CalendarRange, Check, Copy, Lock, Sun, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
 import { useAuth } from "@/context/AuthContext";
-import { getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
+import { deletePoll, getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 function formatDate(dateStr) {
@@ -34,6 +34,7 @@ function formatOptionDate(opt) {
 
 export function PollDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,8 @@ export function PollDetailPage() {
   const [lockError, setLockError] = useState(null);
   const [reminding, setReminding] = useState(false);
   const [reminderMessage, setReminderMessage] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -70,6 +73,23 @@ export function PollDetailPage() {
       setLockError(err.message);
     } finally {
       setLocking(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Delete this poll? All responses will be permanently removed. This cannot be undone.",
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deletePoll(id);
+      navigate("/polls");
+    } catch (err) {
+      setDeleteError(err.message);
+      setDeleting(false);
     }
   };
 
@@ -298,6 +318,24 @@ export function PollDetailPage() {
             })}
           </div>
           {lockError && <p className="mt-3 text-sm text-destructive">{lockError}</p>}
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-destructive/30 bg-card p-6 shadow-soft">
+          <h2 className="text-sm font-semibold text-destructive">Delete poll</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Permanently removes the poll and every response. This cannot be undone.
+          </p>
+          {deleteError && <p className="mt-3 text-sm text-destructive">{deleteError}</p>}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-4 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            disabled={deleting}
+            onClick={handleDelete}
+          >
+            <Trash2 className="h-4 w-4" /> {deleting ? "Deleting..." : "Delete poll"}
+          </Button>
         </div>
       </div>
     </div>

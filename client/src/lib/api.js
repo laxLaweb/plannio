@@ -43,6 +43,18 @@ export function loginWithPassword(payload) {
   });
 }
 
+export function deletePoll(id) {
+  return request(`/api/polls/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function deleteAccount() {
+  return request("/api/auth/account", {
+    method: "DELETE",
+  });
+}
+
 export function lockPollOption(id, optionId) {
   return request(`/api/polls/${id}/lock`, {
     method: "POST",

@@ -282,7 +282,8 @@ Acceptance: `curl -I http://plannio.app/` and `https://www.plannio.app/` both
    Acceptance met: SEO score is 100 on both. Re-measure mobile performance
    after the next deploy (vendor-chunk split + duplicate-meta fix included).
 
-   Fixes implemented July 9, 2026 based on the detailed report (deploy pending):
+   Fixes implemented July 9, 2026 based on the detailed report (deployed;
+   mobile performance improved **70 → 93**):
    - **Console error** (Best Practices): `/api/auth/me` returned 401 for
      anonymous visitors → now returns 200 with `user: null`.
    - **Contrast** (Accessibility): `--success` darkened from `oklch(0.7 …)` to
@@ -291,6 +292,20 @@ Acceptance: `curl -I http://plannio.app/` and `https://www.plannio.app/` both
      in `server/index.js` (prerendered HTML was served uncompressed, ~75 KB).
    - **Unused JS**: `LoginModal` (Radix Dialog) lazy-loaded and only mounted
      when opened; `POST_LOGIN_REDIRECT_KEY` moved to its own module.
+
+   Follow-up hardening (pending deploy):
+   - **Immutable caching**: `/assets/*` (fingerprinted by Vite) served with
+     `Cache-Control: public, max-age=31536000, immutable` — speeds up repeat
+     visits and addresses cache-lifetime audits.
+   - **Security headers**: HSTS, `X-Content-Type-Options`, `X-Frame-Options`,
+     `Referrer-Policy`, `Permissions-Policy` set in production. CSP and COOP
+     deliberately deferred — they must be tested against the Discord/Slack
+     OAuth popup flows first.
+
+   Remaining performance items are diminishing returns: render-blocking CSS
+   (~150 ms, inherent to Vite's single CSS file) and the `motion` chunk on the
+   landing page (replacing scroll animations with CSS would be a visual
+   regression risk). Do not chase these unless mobile drops below ~90.
 4. **`scripts/optimize-og.mjs`** compresses `og-image.png` on each `npm run build`
    (requires Node 20+; skips gracefully on older Node). **[x]** (1325 KB → 373 KB
    confirmed in Heroku build log.)

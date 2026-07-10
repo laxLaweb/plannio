@@ -15,7 +15,7 @@ function normalizeVoterName(name) {
 async function getPollBySlug(slug) {
   const pollResult = await query(
     `SELECT p.id, p.title, p.slug, p.description, p.created_at, p.expected_responses, p.require_login,
-            p.locked_option_id
+            p.hide_voter_names, p.locked_option_id
      FROM polls p
      WHERE p.slug = $1`,
     [slug],
@@ -50,6 +50,14 @@ async function getPollBySlug(slug) {
   );
 
   poll.options = optionsResult.rows;
+
+  // Privatliv: ejeren kan skjule deltagernavne for andre deltagere.
+  if (poll.hide_voter_names) {
+    for (const option of poll.options) {
+      option.voters = [];
+    }
+  }
+
   return poll;
 }
 
@@ -89,7 +97,7 @@ async function getAnonymousVotes(pollId, voterName) {
   return result.rows.map((row) => row.poll_option_id);
 }
 
-async function submitAuthenticatedVote({ pollId, userId, voterName, voterEmail, optionIds }) {
+async function submitAuthenticatedVote({ pollId, userId, voterName, optionIds }) {
   const ids = Array.isArray(optionIds) ? [...new Set(optionIds.map(String))] : [];
 
   const validResult = await query(
@@ -114,9 +122,9 @@ async function submitAuthenticatedVote({ pollId, userId, voterName, voterEmail, 
 
     for (const optionId of chosen) {
       await client.query(
-        `INSERT INTO votes (poll_option_id, user_id, voter_name, voter_email)
-         VALUES ($1, $2, $3, $4)`,
-        [optionId, userId, voterName, voterEmail],
+        `INSERT INTO votes (poll_option_id, user_id, voter_name)
+         VALUES ($1, $2, $3)`,
+        [optionId, userId, voterName],
       );
     }
 
@@ -158,8 +166,8 @@ async function submitAnonymousVote({ pollId, voterName, optionIds }) {
 
     for (const optionId of chosen) {
       await client.query(
-        `INSERT INTO votes (poll_option_id, user_id, voter_name, voter_email)
-         VALUES ($1, NULL, $2, NULL)`,
+        `INSERT INTO votes (poll_option_id, user_id, voter_name)
+         VALUES ($1, NULL, $2)`,
         [optionId, cleanName],
       );
     }

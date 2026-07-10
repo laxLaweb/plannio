@@ -24,6 +24,9 @@ function createSessionMiddleware() {
       pool,
       tableName: "session",
       createTableIfMissing: false,
+      // GDPR: udløbne sessioner slettes fra databasen hver time,
+      // så gamle sessionsdata ikke bliver liggende.
+      pruneSessionInterval: 60 * 60,
     }),
     name: "plannio.sid",
     secret: process.env.SESSION_SECRET,

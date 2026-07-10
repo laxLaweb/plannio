@@ -62,6 +62,7 @@ export function CreatePollPage() {
   const [dates, setDates] = useState(draft.dates || []);
   const [view, setView] = useState(draft.view || "calendar");
   const [requireLogin, setRequireLogin] = useState(draft.requireLogin ?? false);
+  const [hideVoterNames, setHideVoterNames] = useState(draft.hideVoterNames ?? false);
   const [channels, setChannels] = useState({
     discord: { enabled: false, events: [] },
     slack: { enabled: false, events: [] },
@@ -84,9 +85,10 @@ export function CreatePollPage() {
       dates,
       view,
       requireLogin,
+      hideVoterNames,
     };
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
-  }, [title, description, sameTime, globalStartTime, globalEndTime, globalAllDay, dates, view, requireLogin]);
+  }, [title, description, sameTime, globalStartTime, globalEndTime, globalAllDay, dates, view, requireLogin, hideVoterNames]);
 
   if (loading) {
     return (
@@ -191,6 +193,7 @@ export function CreatePollPage() {
         reminders: channels.reminders,
         expectedResponses: channels.expectedResponses ?? undefined,
         requireLogin,
+        hideVoterNames,
       });
       sessionStorage.removeItem(DRAFT_KEY);
       navigate(`/polls/${poll.id}`);
@@ -246,6 +249,24 @@ export function CreatePollPage() {
                 <span className="block text-xs text-muted-foreground">
                   Turn off to let participants vote with just a name — and edit responses from people
                   who were not logged in.
+                </span>
+              </span>
+            </label>
+
+            <label className="mt-4 flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={hideVoterNames}
+                onChange={(e) => setHideVoterNames(e.target.checked)}
+                className="mt-0.5 h-5 w-5 rounded-md accent-[oklch(0.557_0.224_277)]"
+              />
+              <span>
+                <span className="text-sm font-semibold text-foreground">
+                  Hide participant names
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  Participants see how many can attend each date, but not who. You still see names
+                  on your results page.
                 </span>
               </span>
             </label>

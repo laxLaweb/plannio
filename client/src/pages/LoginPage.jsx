@@ -61,8 +61,15 @@ export function LoginPage() {
         </div>
 
         <p className="mt-8 text-center text-xs leading-relaxed text-muted-foreground">
-          By signing in you accept our terms. We only use your name and profile picture to identify
-          you in Plannio.
+          By signing in you accept our{" "}
+          <Link to="/terms" className="font-medium text-primary hover:underline">
+            terms of service
+          </Link>{" "}
+          and{" "}
+          <Link to="/privacy" className="font-medium text-primary hover:underline">
+            privacy policy
+          </Link>
+          . We only use your name and profile picture to identify you in Plannio.
         </p>
       </div>
     </div>

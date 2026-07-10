@@ -19,7 +19,9 @@ async function maybeNotifyVote(poll, voterName, chosen) {
   if (fullPoll?.discord_webhook_url || fullPoll?.slack_webhook_url) {
     const selected = fullPoll.options.filter((o) => chosen.includes(o.id));
     notifyPollEvent(fullPoll, "vote", {
-      voterName,
+      // Skjulte navne må heller ikke lækkes i kanal-notifikationer;
+      // integrationen falder tilbage til "A participant".
+      voterName: fullPoll.hide_voter_names ? null : voterName,
       options: selected,
     }).catch((err) => console.error("Notification failed:", err.message));
 
@@ -56,7 +58,8 @@ router.get("/:slug", async (req, res) => {
       myVotes = await getAnonymousVotes(poll.id, voterName);
     }
 
-    const anonymousVoters = poll.require_login ? [] : await getAnonymousVoterNames(poll.id);
+    const anonymousVoters =
+      poll.require_login || poll.hide_voter_names ? [] : await getAnonymousVoterNames(poll.id);
 
     res.json({ poll, myVotes, anonymousVoters });
   } catch (error) {
@@ -87,7 +90,6 @@ router.post("/:slug/vote", async (req, res) => {
         pollId: poll.id,
         userId: req.session.userId,
         voterName: req.session.user?.displayName || "Participant",
-        voterEmail: req.session.user?.email || null,
         optionIds,
       });
     } else {
@@ -99,7 +101,8 @@ router.post("/:slug/vote", async (req, res) => {
     }
 
     const updated = await maybeNotifyVote(poll, result.voterName, result.chosen);
-    const anonymousVoters = poll.require_login ? [] : await getAnonymousVoterNames(poll.id);
+    const anonymousVoters =
+      poll.require_login || poll.hide_voter_names ? [] : await getAnonymousVoterNames(poll.id);
 
     res.json({ poll: updated, myVotes: result.chosen, anonymousVoters });
   } catch (error) {

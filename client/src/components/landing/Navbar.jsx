@@ -38,12 +38,16 @@ function UserMenu() {
       <Button variant="ghost" size="sm" asChild>
         <Link to="/polls">My polls</Link>
       </Button>
-      <div className="flex items-center gap-2 rounded-xl border border-border bg-card/80 py-1 pl-1 pr-3 shadow-soft">
+      <Link
+        to="/account"
+        title="Account settings"
+        className="flex items-center gap-2 rounded-xl border border-border bg-card/80 py-1 pl-1 pr-3 shadow-soft transition-colors hover:border-primary/40"
+      >
         <UserAvatar user={user} className="h-8 w-8 rounded-lg" />
         <span className="max-w-[120px] truncate text-sm font-semibold text-foreground">
           {user.displayName}
         </span>
-      </div>
+      </Link>
       <Button variant="ghost" size="sm" onClick={logout} aria-label="Log out">
         <LogOut className="h-4 w-4" />
       </Button>
@@ -126,13 +130,22 @@ export function Navbar({ showNavLinks = true }) {
               <div className="mt-2 flex flex-col gap-2">
                 {user ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-border px-3 py-2.5">
+                    <Link
+                      to="/account"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 rounded-xl border border-border px-3 py-2.5"
+                    >
                       <UserAvatar user={user} className="h-9 w-9 rounded-lg" />
                       <span className="text-sm font-semibold text-foreground">{user.displayName}</span>
-                    </div>
+                    </Link>
                     <Button variant="outline" asChild>
                       <Link to="/polls" onClick={() => setOpen(false)}>
                         My polls
+                      </Link>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <Link to="/account" onClick={() => setOpen(false)}>
+                        Account
                       </Link>
                     </Button>
                     <Button variant="outline" onClick={logout}>

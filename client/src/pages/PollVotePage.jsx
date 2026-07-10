@@ -346,6 +346,18 @@ export function PollVotePage() {
                   <Check className="h-4 w-4" /> Response saved
                 </p>
               )}
+
+              <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
+                {poll.hide_voter_names
+                  ? "Your response is shared with the poll creator"
+                  : "Your name and response are visible to everyone with this link"}
+                {" "}and may be posted to the group&apos;s Discord or Slack channel if the creator
+                connected one. See our{" "}
+                <Link to="/privacy" className="font-medium underline hover:text-foreground">
+                  privacy policy
+                </Link>
+                .
+              </p>
             </div>
           )
         )}

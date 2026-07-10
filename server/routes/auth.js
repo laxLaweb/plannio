@@ -1,5 +1,7 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const { createOAuthState } = require("../auth/session");
+const { requireAuth } = require("../auth/middleware");
 const {
   getDiscordConfig,
   getDiscordAuthUrl,
@@ -18,10 +20,34 @@ const {
   serializeUser,
   findUserByEmailWithPassword,
   createUserWithPassword,
+  deleteUserById,
+  exportUserData,
 } = require("../auth/users");
 const { verifyPassword } = require("../auth/password");
 
 const router = express.Router();
+
+// GDPR art. 32: bremser brute force mod password-login og registrering.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many attempts — try again in 15 minutes" },
+});
+
+// Regenerér session-ID ved login for at forhindre session fixation,
+// og gem først derefter brugeren på den nye session.
+function establishSession(req, user, done) {
+  req.session.regenerate((error) => {
+    if (error) {
+      return done(error);
+    }
+    req.session.userId = user.id;
+    req.session.user = serializeUser(user);
+    req.session.save(done);
+  });
+}
 
 function getAppUrl() {
   return process.env.APP_URL || "http://localhost:3000";
@@ -112,10 +138,7 @@ router.get("/discord/callback", async (req, res) => {
     // Hvis brugeren allerede er logget ind, knyttes Discord til den eksisterende konto
     const user = await upsertDiscordUser(discordUser, req.session.userId || null);
 
-    req.session.userId = user.id;
-    req.session.user = serializeUser(user);
-
-    req.session.save((saveError) => {
+    establishSession(req, user, (saveError) => {
       if (saveError) {
         return redirectWithError(res, "Could not create session");
       }
@@ -163,10 +186,7 @@ router.get("/slack/callback", async (req, res) => {
     // If the user is already logged in, link Slack to the existing account instead.
     const user = await upsertSlackUser(slackUser, req.session.userId || null);
 
-    req.session.userId = user.id;
-    req.session.user = serializeUser(user);
-
-    req.session.save((saveError) => {
+    establishSession(req, user, (saveError) => {
       if (saveError) {
         return redirectWithError(res, "Could not create session");
       }
@@ -178,7 +198,7 @@ router.get("/slack/callback", async (req, res) => {
   }
 });
 
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
     const password = String(req.body.password || "");
@@ -195,9 +215,7 @@ router.post("/register", async (req, res) => {
 
     const user = await createUserWithPassword({ email, password, displayName });
 
-    req.session.userId = user.id;
-    req.session.user = serializeUser(user);
-    req.session.save((error) => {
+    establishSession(req, user, (error) => {
       if (error) {
         return res.status(500).json({ error: "Could not create session" });
       }
@@ -208,7 +226,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
     const password = String(req.body.password || "");
@@ -218,9 +236,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    req.session.userId = user.id;
-    req.session.user = serializeUser(user);
-    req.session.save((error) => {
+    establishSession(req, user, (error) => {
       if (error) {
         return res.status(500).json({ error: "Could not create session" });
       }
@@ -239,6 +255,33 @@ router.post("/logout", (req, res) => {
     res.clearCookie("plannio.sid");
     res.json({ ok: true });
   });
+});
+
+// GDPR art. 15/20: indsigt og dataportabilitet — download alle egne data som JSON.
+router.get("/export", requireAuth, async (req, res) => {
+  try {
+    const data = await exportUserData(req.session.userId);
+    res.setHeader("Content-Disposition", 'attachment; filename="plannio-data-export.json"');
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GDPR art. 17: slet konto og alt tilknyttet data (polls, stemmer, identiteter).
+router.delete("/account", requireAuth, async (req, res) => {
+  try {
+    await deleteUserById(req.session.userId);
+    req.session.destroy((error) => {
+      if (error) {
+        console.error("Session destroy fejl:", error.message);
+      }
+      res.clearCookie("plannio.sid");
+      res.json({ ok: true });
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;

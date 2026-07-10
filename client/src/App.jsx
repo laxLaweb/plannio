@@ -20,6 +20,15 @@ const PollVotePage = lazy(() =>
 const MyPollsPage = lazy(() =>
   import("./pages/MyPollsPage").then((m) => ({ default: m.MyPollsPage })),
 );
+const AccountPage = lazy(() =>
+  import("./pages/AccountPage").then((m) => ({ default: m.AccountPage })),
+);
+const PrivacyPage = lazy(() =>
+  import("./pages/legal/PrivacyPage").then((m) => ({ default: m.PrivacyPage })),
+);
+const TermsPage = lazy(() =>
+  import("./pages/legal/TermsPage").then((m) => ({ default: m.TermsPage })),
+);
 
 const DiscordSchedulingPage = lazy(() =>
   import("./pages/content/DiscordSchedulingPage").then((m) => ({
@@ -79,7 +88,10 @@ function App() {
               <Route path="/guides/discord-poll-without-bot" element={<DiscordPollWithoutBotPage />} />
               <Route path="/guides/stop-chasing-replies" element={<StopChasingRepliesPage />} />
               <Route path="/guides/date-ranges" element={<DateRangesPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/account" element={<AccountPage />} />
               <Route path="/polls" element={<MyPollsPage />} />
               <Route path="/polls/new" element={<CreatePollPage />} />
               <Route path="/polls/:id" element={<PollDetailPage />} />

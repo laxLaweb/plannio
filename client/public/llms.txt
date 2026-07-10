@@ -24,3 +24,5 @@
 - [Discord without bot](https://plannio.app/guides/discord-poll-without-bot): webhook scheduling
 - [Stop chasing replies](https://plannio.app/guides/stop-chasing-replies): group date planning
 - [Date ranges](https://plannio.app/guides/date-ranges): multi-day poll options
+- [Privacy policy](https://plannio.app/privacy): how personal data is handled
+- [Terms of service](https://plannio.app/terms): terms for using Plannio

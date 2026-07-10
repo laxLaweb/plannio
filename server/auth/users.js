@@ -162,6 +162,59 @@ function serializeUser(user) {
   };
 }
 
+// GDPR art. 17: sletter kontoen og alt tilknyttet data.
+// ON DELETE CASCADE fjerner user_identities, polls (inkl. options,
+// stemmer og reminders via deres egne cascades) og brugerens stemmer.
+async function deleteUserById(userId) {
+  await query(`DELETE FROM users WHERE id = $1`, [userId]);
+}
+
+// GDPR art. 15/20: samlet udtræk af alle personoplysninger vi har om brugeren.
+async function exportUserData(userId) {
+  const user = await findUserById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const providers = await getUserProviders(userId);
+
+  const pollsResult = await query(
+    `SELECT id, title, slug, description, created_at, expected_responses, require_login
+     FROM polls
+     WHERE user_id = $1
+     ORDER BY created_at`,
+    [userId],
+  );
+
+  const votesResult = await query(
+    `SELECT p.title AS poll_title,
+            to_char(o.option_date, 'YYYY-MM-DD') AS option_date,
+            to_char(o.start_time, 'HH24:MI') AS start_time,
+            v.voter_name,
+            v.created_at
+     FROM votes v
+     JOIN poll_options o ON o.id = v.poll_option_id
+     JOIN polls p ON p.id = o.poll_id
+     WHERE v.user_id = $1
+     ORDER BY v.created_at`,
+    [userId],
+  );
+
+  return {
+    exportedAt: new Date().toISOString(),
+    profile: {
+      id: user.id,
+      email: user.email,
+      displayName: user.display_name,
+      avatarUrl: user.avatar_url,
+      createdAt: user.created_at,
+      linkedProviders: providers,
+    },
+    polls: pollsResult.rows,
+    votes: votesResult.rows,
+  };
+}
+
 module.exports = {
   findUserById,
   findUserByProvider,
@@ -174,4 +227,6 @@ module.exports = {
   upsertDiscordUser,
   upsertSlackUser,
   serializeUser,
+  deleteUserById,
+  exportUserData,
 };
