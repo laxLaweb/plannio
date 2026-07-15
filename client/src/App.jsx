@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CreatePollProvider } from "./context/CreatePollContext";
 import { LandingPage } from "./components/landing/LandingPage";
-import { Analytics } from "./components/Analytics";
+import { Analytics, GoogleAnalyticsPageView } from "./components/Analytics";
 
 const LoginPage = lazy(() =>
   import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })),
@@ -75,6 +75,7 @@ function App() {
   return (
     <BrowserRouter>
       <Analytics />
+      <GoogleAnalyticsPageView />
       <AuthProvider>
         <CreatePollProvider>
           <Suspense fallback={null}>
