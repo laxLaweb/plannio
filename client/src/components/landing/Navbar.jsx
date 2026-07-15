@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, LogOut } from "lucide-react";
@@ -58,10 +58,26 @@ function UserMenu() {
   );
 }
 
+function scrollToHash(hash) {
+  const id = hash.replace(/^#/, "");
+  const target = document.getElementById(id);
+  if (!target) return;
+
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.history.pushState(null, "", hash);
+}
+
 export function Navbar({ showNavLinks = true }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const pendingScrollRef = useRef(null);
   const { user, logout } = useAuth();
+
+  const handleMobileSectionClick = (event, href) => {
+    event.preventDefault();
+    pendingScrollRef.current = href;
+    setOpen(false);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -107,7 +123,14 @@ export function Navbar({ showNavLinks = true }) {
         </button>
       </nav>
 
-      <AnimatePresence>
+      <AnimatePresence
+        onExitComplete={() => {
+          const href = pendingScrollRef.current;
+          if (!href) return;
+          pendingScrollRef.current = null;
+          scrollToHash(href);
+        }}
+      >
         {open && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -121,7 +144,7 @@ export function Navbar({ showNavLinks = true }) {
                   <a
                     key={l.label}
                     href={l.href}
-                    onClick={() => setOpen(false)}
+                    onClick={(event) => handleMobileSectionClick(event, l.href)}
                     className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                   >
                     {l.label}
