@@ -19,4 +19,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://plannio.app/sitemap.xml
+Sitemap: https://plannio.eu/sitemap.xml

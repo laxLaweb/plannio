@@ -5,7 +5,7 @@ Senest opdateret: 9. juli 2026. Hold dette dokument i sync med `/privacy`-siden 
 
 ## 1. Fortegnelse over behandlingsaktiviteter (art. 30)
 
-**Dataansvarlig:** Plannio · kontakt: privacy@plannio.app
+**Dataansvarlig:** Plannio · kontakt: privacy@plannio.eu
 
 | # | Aktivitet | Kategorier af registrerede | Kategorier af oplysninger | Formål | Retsgrundlag | Opbevaring | Modtagere |
 |---|-----------|---------------------------|---------------------------|--------|--------------|------------|-----------|

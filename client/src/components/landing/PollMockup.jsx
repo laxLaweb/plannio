@@ -22,7 +22,7 @@ export function PollMockup() {
           <span className="h-3 w-3 rounded-full bg-[oklch(0.8_0.12_25)]" />
           <span className="h-3 w-3 rounded-full bg-[oklch(0.85_0.12_85)]" />
           <span className="h-3 w-3 rounded-full bg-[oklch(0.8_0.12_150)]" />
-          <span className="ml-3 text-xs font-medium text-muted-foreground">plannio.app/p/weekend-trip-a3f2</span>
+          <span className="ml-3 text-xs font-medium text-muted-foreground">plannio.eu/p/weekend-trip-a3f2</span>
         </div>
 
         <div>

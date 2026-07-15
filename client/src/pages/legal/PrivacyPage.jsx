@@ -5,7 +5,7 @@ import {
   ContentSection,
 } from "@/pages/content/ContentPage";
 
-const CONTACT_EMAIL = "privacy@plannio.app";
+const CONTACT_EMAIL = "privacy@plannio.eu";
 
 export function PrivacyPage() {
   return (

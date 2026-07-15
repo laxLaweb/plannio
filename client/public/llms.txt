@@ -15,14 +15,14 @@
   tracking, automatic and manual reminders, live results
 
 ## Pages
-- [Home](https://plannio.app/): product overview
-- [Discord scheduling](https://plannio.app/discord-scheduling): Discord integration guide
-- [Slack scheduling](https://plannio.app/slack-scheduling): Slack integration guide
-- [Weekend trip](https://plannio.app/use-cases/weekend-trip): plan a trip with friends
-- [Team meetings](https://plannio.app/use-cases/team-meetings): find a time the team can make
-- [Game night](https://plannio.app/use-cases/game-night): schedule in Discord
-- [Discord without bot](https://plannio.app/guides/discord-poll-without-bot): webhook scheduling
-- [Stop chasing replies](https://plannio.app/guides/stop-chasing-replies): group date planning
-- [Date ranges](https://plannio.app/guides/date-ranges): multi-day poll options
-- [Privacy policy](https://plannio.app/privacy): how personal data is handled
-- [Terms of service](https://plannio.app/terms): terms for using Plannio
+- [Home](https://plannio.eu/): product overview
+- [Discord scheduling](https://plannio.eu/discord-scheduling): Discord integration guide
+- [Slack scheduling](https://plannio.eu/slack-scheduling): Slack integration guide
+- [Weekend trip](https://plannio.eu/use-cases/weekend-trip): plan a trip with friends
+- [Team meetings](https://plannio.eu/use-cases/team-meetings): find a time the team can make
+- [Game night](https://plannio.eu/use-cases/game-night): schedule in Discord
+- [Discord without bot](https://plannio.eu/guides/discord-poll-without-bot): webhook scheduling
+- [Stop chasing replies](https://plannio.eu/guides/stop-chasing-replies): group date planning
+- [Date ranges](https://plannio.eu/guides/date-ranges): multi-day poll options
+- [Privacy policy](https://plannio.eu/privacy): how personal data is handled
+- [Terms of service](https://plannio.eu/terms): terms for using Plannio

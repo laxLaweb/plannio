@@ -2,7 +2,7 @@
  * Single source of truth for public, indexable routes.
  * Used by prerender, sitemap generation, and llms.txt generation.
  */
-export const SITE_URL = "https://plannio.app";
+export const SITE_URL = "https://plannio.eu";
 
 export const PUBLIC_ROUTES = [
   { path: "/", changefreq: "weekly", priority: "1.0", llmsLabel: "Home", llmsDesc: "product overview" },

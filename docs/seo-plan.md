@@ -31,9 +31,9 @@ order — Phase 1 is a prerequisite for everything else.
 
 ## Ground rules for the executor
 
-- The canonical production URL is `https://plannio.app`. If the real domain
+- The canonical production URL is `https://plannio.eu`. If the real domain
   differs, ask the user once, then use that value everywhere this document says
-  `plannio.app`.
+  `plannio.eu`.
 - All user-facing copy is in **English** (the codebase UI is English; only the
   README is Danish). Write all new page content in English.
 - Never touch files under `server/auth/`, `server/integrations/`, or
@@ -87,7 +87,7 @@ Disallow: /api/
 Disallow: /polls
 Disallow: /login
 
-Sitemap: https://plannio.app/sitemap.xml
+Sitemap: https://plannio.eu/sitemap.xml
 ```
 
 Rationale: `/polls`, `/polls/new`, `/polls/:id` are the creator's private
@@ -108,7 +108,7 @@ add:
       name="description"
       content="Free date polls for groups. Pick dates in a calendar, share one link, and get updates in Discord and Slack when people respond. No account needed to vote."
     />
-    <link rel="canonical" href="https://plannio.app/" />
+    <link rel="canonical" href="https://plannio.eu/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Plannio" />
     <meta property="og:title" content="Plannio – Find the time everyone says yes to" />
@@ -116,15 +116,15 @@ add:
       property="og:description"
       content="Free date polls for groups. Share one link, vote in seconds, and get updates in Discord and Slack."
     />
-    <meta property="og:url" content="https://plannio.app/" />
-    <meta property="og:image" content="https://plannio.app/og-image.png" />
+    <meta property="og:url" content="https://plannio.eu/" />
+    <meta property="og:image" content="https://plannio.eu/og-image.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Plannio – Find the time everyone says yes to" />
     <meta
       name="twitter:description"
       content="Free date polls for groups. Share one link, vote in seconds, and get updates in Discord and Slack."
     />
-    <meta name="twitter:image" content="https://plannio.app/og-image.png" />
+    <meta name="twitter:image" content="https://plannio.eu/og-image.png" />
     <meta name="theme-color" content="#ffffff" />
 ```
 
@@ -141,7 +141,7 @@ canonical, OG and twitter tags; `dist/og-image.png` exists.
 Create `client/src/components/PageMeta.jsx`:
 
 ```jsx
-const SITE_URL = "https://plannio.app";
+const SITE_URL = "https://plannio.eu";
 
 export function PageMeta({ title, description, path, noindex = false }) {
   const fullTitle = title ? `${title} | Plannio` : "Plannio – Find the time everyone says yes to";
@@ -194,7 +194,7 @@ Two JSON-LD blocks:
   "name": "Plannio",
   "applicationCategory": "SchedulingApplication",
   "operatingSystem": "Web",
-  "url": "https://plannio.app",
+  "url": "https://plannio.eu",
   "description": "Free date polls for groups with Discord and Slack channel updates.",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
 }
@@ -216,14 +216,14 @@ built in Phase 3) each content page:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://plannio.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://plannio.eu/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
 </urlset>
 ```
 
 Every time a Phase-3 page is added, append its `<url>` entry here in the same
 commit. Keep it a static file — do not build a dynamic sitemap route.
 
-Acceptance: `https://plannio.app/sitemap.xml` returns valid XML; every URL in
+Acceptance: `https://plannio.eu/sitemap.xml` returns valid XML; every URL in
 it returns HTTP 200.
 
 ### 1.6 Fix dead footer links — [x]
@@ -262,8 +262,8 @@ app.use((req, res, next) => {
 });
 ```
 
-Acceptance: `curl -I http://plannio.app/` and `https://www.plannio.app/` both
-301 to `https://plannio.app/` in production. (In local dev nothing changes.)
+Acceptance: `curl -I http://plannio.eu/` and `https://www.plannio.eu/` both
+301 to `https://plannio.eu/` in production. (In local dev nothing changes.)
 
 ### 1.8 Performance pass (Core Web Vitals) — [x] measured
 
@@ -443,7 +443,7 @@ JavaScript. Prerendering saves static HTML so they see full page content.
 3. `heroku-postbuild`: `npm run build && npm run prerender`. **[x]**
    Set `SKIP_PRERENDER=1` to skip. Build already runs `optimize-og` first.
 4. Server catch-all serves prerendered HTML. **[x]**
-5. **Verify after deploy:** `curl https://plannio.app/discord-scheduling | grep "<h1"`
+5. **Verify after deploy:** `curl https://plannio.eu/discord-scheduling | grep "<h1"`
 
 ### 4.2 Welcome AI crawlers in robots.txt — [x]
 
@@ -576,7 +576,7 @@ the sitemap so Google indexes new pages fast.
 1. Go to https://search.google.com/search-console and sign in with any
    Google account (create one at https://accounts.google.com if needed).
 2. Click "Add property". Choose **URL prefix** and enter
-   `https://plannio.app` (the Domain option requires DNS access — use it
+   `https://plannio.eu` (the Domain option requires DNS access — use it
    instead if you can edit DNS records where you bought the domain; it
    covers www/non-www automatically).
 3. For URL-prefix verification, pick **HTML tag**. Google shows something
@@ -596,8 +596,8 @@ the sitemap so Google indexes new pages fast.
 
 ### 3. Domain & DNS sanity check
 
-Wherever you bought your domain: make sure both `plannio.app` and
-`www.plannio.app` point at the Heroku app (Heroku dashboard → Settings →
+Wherever you bought your domain: make sure both `plannio.eu` and
+`www.plannio.eu` point at the Heroku app (Heroku dashboard → Settings →
 Domains shows the DNS targets). The code from task 1.7 then redirects www →
 non-www so only one version gets indexed.
 
@@ -607,7 +607,7 @@ Recommendation: start with **Umami Cloud free tier** (free up to 100k
 events/month) since the site is new:
 
 1. Go to https://umami.is → Sign up (free) → "Add website" → enter
-   `plannio.app`.
+   `plannio.eu`.
 2. It shows a script tag like
    `<script defer src="https://cloud.umami.is/script.js" data-website-id="xxxx"></script>`
    — paste it to the executor model to add to `client/index.html`, deploy.

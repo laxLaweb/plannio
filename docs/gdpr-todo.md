@@ -5,7 +5,7 @@ til "Færdigt", efterhånden som de bliver lavet.
 
 ## Skal laves
 
-- [ ] **Opret mailadressen `privacy@plannio.app`**
+- [ ] **Opret mailadressen `privacy@plannio.eu`**
   Adressen bruges som kontakt i privatlivspolitikken (`/privacy`), vilkårene (`/terms`)
   og i `docs/gdpr-fortegnelse.md`. Henvendelser om indsigt/sletning skal besvares inden
   for en måned (GDPR art. 12(3)).

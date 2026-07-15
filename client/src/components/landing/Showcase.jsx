@@ -107,7 +107,7 @@ function BrowserBar() {
       <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.85_0.12_85)]" />
       <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.8_0.12_150)]" />
       <div className="ml-3 hidden flex-1 rounded-md bg-background px-3 py-1 text-xs text-muted-foreground sm:block">
-        plannio.app/polls/new
+        plannio.eu/polls/new
       </div>
     </div>
   );

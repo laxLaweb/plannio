@@ -57,7 +57,7 @@ export function Features() {
 
               <div className="mt-8 rounded-2xl border border-border bg-gradient-to-b from-secondary/40 to-background p-5">
                 <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-                  <span>plannio.app/p/weekend-trip-a3f2</span>
+                  <span>plannio.eu/p/weekend-trip-a3f2</span>
                   <span className="rounded-full bg-success/15 px-2 py-0.5 text-success">3 / 4 responded</span>
                 </div>
                 <div className="mt-4 space-y-2">
