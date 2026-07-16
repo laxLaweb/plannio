@@ -41,9 +41,10 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     // Webhook-URL'erne kommer fra sessionen (OAuth-flowet), ikke fra klienten.
+    const loginProvider = req.session.user?.loginProvider;
     const pendingDiscord = req.session.pendingDiscordWebhook;
     let discordConfig = null;
-    if (discord?.enabled && pendingDiscord?.url) {
+    if (loginProvider !== "slack" && discord?.enabled && pendingDiscord?.url) {
       discordConfig = {
         webhookUrl: pendingDiscord.url,
         webhookId: pendingDiscord.webhookId,
@@ -55,7 +56,7 @@ router.post("/", async (req, res) => {
 
     const pendingSlack = req.session.pendingSlackWebhook;
     let slackConfig = null;
-    if (slack?.enabled && pendingSlack?.url) {
+    if (loginProvider !== "discord" && slack?.enabled && pendingSlack?.url) {
       slackConfig = {
         webhookUrl: pendingSlack.url,
         channelName: pendingSlack.channelName,

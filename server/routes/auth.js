@@ -38,13 +38,13 @@ const authLimiter = rateLimit({
 
 // Regenerér session-ID ved login for at forhindre session fixation,
 // og gem først derefter brugeren på den nye session.
-function establishSession(req, user, done) {
+function establishSession(req, user, loginProvider, done) {
   req.session.regenerate((error) => {
     if (error) {
       return done(error);
     }
     req.session.userId = user.id;
-    req.session.user = serializeUser(user);
+    req.session.user = { ...serializeUser(user), loginProvider };
     req.session.save(done);
   });
 }
@@ -138,7 +138,7 @@ router.get("/discord/callback", async (req, res) => {
     // Hvis brugeren allerede er logget ind, knyttes Discord til den eksisterende konto
     const user = await upsertDiscordUser(discordUser, req.session.userId || null);
 
-    establishSession(req, user, (saveError) => {
+    establishSession(req, user, "discord", (saveError) => {
       if (saveError) {
         return redirectWithError(res, "Could not create session");
       }
@@ -186,7 +186,7 @@ router.get("/slack/callback", async (req, res) => {
     // If the user is already logged in, link Slack to the existing account instead.
     const user = await upsertSlackUser(slackUser, req.session.userId || null);
 
-    establishSession(req, user, (saveError) => {
+    establishSession(req, user, "slack", (saveError) => {
       if (saveError) {
         return redirectWithError(res, "Could not create session");
       }
@@ -215,7 +215,7 @@ router.post("/register", authLimiter, async (req, res) => {
 
     const user = await createUserWithPassword({ email, password, displayName });
 
-    establishSession(req, user, (error) => {
+    establishSession(req, user, "password", (error) => {
       if (error) {
         return res.status(500).json({ error: "Could not create session" });
       }
@@ -236,7 +236,7 @@ router.post("/login", authLimiter, async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    establishSession(req, user, (error) => {
+    establishSession(req, user, "password", (error) => {
       if (error) {
         return res.status(500).json({ error: "Could not create session" });
       }

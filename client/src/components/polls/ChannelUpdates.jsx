@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Plug, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { DiscordIcon, SlackIcon } from "@/components/auth/LoginOptions";
+import { useAuth } from "@/context/AuthContext";
 
 const EVENT_OPTIONS = [
   { id: "created", label: "When the poll is created" },
@@ -167,6 +168,11 @@ function ProviderRow({ provider, connection }) {
 }
 
 export function ChannelUpdates({ onChange, earliestDate }) {
+  const { user } = useAuth();
+  const loginProvider = user?.loginProvider;
+  const showDiscord = loginProvider !== "slack";
+  const showSlack = loginProvider !== "discord";
+
   const discordConn = useProviderConnection("discord");
   const slackConn = useProviderConnection("slack");
 
@@ -182,12 +188,12 @@ export function ChannelUpdates({ onChange, earliestDate }) {
       : [];
 
     onChange({
-      discord: { enabled: discordConn.connected, events },
-      slack: { enabled: slackConn.connected, events },
+      discord: { enabled: showDiscord && discordConn.connected, events },
+      slack: { enabled: showSlack && slackConn.connected, events },
       expectedResponses: Number.isFinite(parsed) && parsed > 0 ? parsed : null,
       reminders: reminderIso,
     });
-  }, [discordConn.connected, slackConn.connected, events, expected, reminders, onChange]);
+  }, [showDiscord, showSlack, discordConn.connected, slackConn.connected, events, expected, reminders, onChange]);
 
   const toggleEvent = (id) => {
     setEvents((prev) => (prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]));
@@ -213,11 +219,22 @@ export function ChannelUpdates({ onChange, earliestDate }) {
     });
   };
 
-  if (discordConn.available === false && slackConn.available === false) {
+  const discordVisible = showDiscord && discordConn.available !== false;
+  const slackVisible = showSlack && slackConn.available !== false;
+
+  if (!discordVisible && !slackVisible) {
     return null;
   }
 
-  const anyConnected = discordConn.connected || slackConn.connected;
+  const anyConnected =
+    (showDiscord && discordConn.connected) || (showSlack && slackConn.connected);
+
+  const channelDescription =
+    showDiscord && showSlack
+      ? "Send updates directly to a Discord and/or Slack channel. Pick the channel during connect — no bot invite needed."
+      : showDiscord
+        ? "Send updates directly to a Discord channel. Pick the channel during connect — no bot invite needed."
+        : "Send updates directly to a Slack channel. Pick the channel during connect — no app install needed.";
 
   return (
     <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
@@ -227,10 +244,7 @@ export function ChannelUpdates({ onChange, earliestDate }) {
         </span>
         <div>
           <h2 className="text-sm font-semibold text-foreground">Channel updates</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Send updates directly to a Discord and/or Slack channel. Pick the channel during
-            connect — no bot invite needed.
-          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{channelDescription}</p>
         </div>
       </div>
 
@@ -250,8 +264,8 @@ export function ChannelUpdates({ onChange, earliestDate }) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-3">
-        <ProviderRow provider="discord" connection={discordConn} />
-        <ProviderRow provider="slack" connection={slackConn} />
+        {showDiscord && <ProviderRow provider="discord" connection={discordConn} />}
+        {showSlack && <ProviderRow provider="slack" connection={slackConn} />}
       </div>
 
       <div className="mt-4">

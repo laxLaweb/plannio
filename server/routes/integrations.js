@@ -59,6 +59,10 @@ router.get("/discord/status", requireAuth, async (req, res) => {
 });
 
 router.get("/discord/connect", requireAuth, (req, res) => {
+  if (req.session.user?.loginProvider === "slack") {
+    return res.status(403).send("You can only connect a Discord channel when logged in with Discord");
+  }
+
   if (!getDiscordWebhookConfig()) {
     return res.status(503).send("Discord is not configured");
   }
@@ -168,6 +172,10 @@ router.get("/slack/status", requireAuth, async (req, res) => {
 });
 
 router.get("/slack/connect", requireAuth, (req, res) => {
+  if (req.session.user?.loginProvider === "discord") {
+    return res.status(403).send("You can only connect a Slack channel when logged in with Slack");
+  }
+
   if (!getSlackWebhookConfig()) {
     return res.status(503).send("Slack is not configured");
   }
