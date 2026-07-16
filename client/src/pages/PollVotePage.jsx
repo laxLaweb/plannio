@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, CalendarRange, Check, Lock, Sun, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  CalendarRange,
+  Check,
+  HelpCircle,
+  Lock,
+  Sun,
+  Users,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
@@ -8,6 +18,31 @@ import { DiscordIcon, SlackIcon, startDiscordLogin, startSlackLogin } from "@/co
 import { useAuth } from "@/context/AuthContext";
 import { getPublicPoll, submitVote } from "@/lib/api";
 import { cn } from "@/lib/utils";
+
+const STATUS_META = {
+  yes: {
+    icon: Check,
+    label: "Accepted",
+    activeClasses: "border-primary bg-primary text-white",
+    textClass: "text-success",
+    rowActiveClasses: "border-primary bg-primary-soft",
+  },
+  maybe: {
+    icon: HelpCircle,
+    label: "Maybe",
+    activeClasses: "border-amber-500 bg-amber-500 text-white",
+    textClass: "text-amber-600",
+    rowActiveClasses: "border-amber-400 bg-amber-50",
+  },
+  no: {
+    icon: X,
+    label: "Can't make it",
+    activeClasses: "border-destructive bg-destructive text-white",
+    textClass: "text-destructive",
+    rowActiveClasses: "border-destructive/40 bg-destructive/5",
+  },
+};
+const STATUS_ORDER = ["yes", "maybe", "no"];
 
 function formatDate(dateStr) {
   const date = new Date(`${dateStr}T00:00:00`);
@@ -47,7 +82,7 @@ export function PollVotePage() {
   const [anonymousVoters, setAnonymousVoters] = useState([]);
   const [voterName, setVoterName] = useState("");
   const [responseMode, setResponseMode] = useState("create");
-  const [selected, setSelected] = useState([]);
+  const [responses, setResponses] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -59,8 +94,8 @@ export function PollVotePage() {
     const data = await getPublicPoll(slug, name || undefined);
     setPoll(data.poll);
     setAnonymousVoters(data.anonymousVoters || []);
-    setSelected(data.myVotes || []);
-    setSaved((data.myVotes || []).length > 0);
+    setResponses(data.myResponses || {});
+    setSaved(Object.keys(data.myResponses || {}).length > 0);
   };
 
   useEffect(() => {
@@ -74,8 +109,8 @@ export function PollVotePage() {
       .then((data) => {
         setPoll(data.poll);
         setAnonymousVoters(data.anonymousVoters || []);
-        setSelected(data.myVotes || []);
-        setSaved((data.myVotes || []).length > 0);
+        setResponses(data.myResponses || {});
+        setSaved(Object.keys(data.myResponses || {}).length > 0);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -87,9 +122,17 @@ export function PollVotePage() {
     [poll],
   );
 
-  const toggle = (id) => {
+  const setStatus = (optionId, status) => {
     setSaved(false);
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setResponses((prev) => {
+      const next = { ...prev };
+      if (next[optionId] === status) {
+        delete next[optionId];
+      } else {
+        next[optionId] = status;
+      }
+      return next;
+    });
   };
 
   const handleSelectExistingVoter = async (name) => {
@@ -109,7 +152,7 @@ export function PollVotePage() {
     setSaving(true);
     setError(null);
     try {
-      const payload = { optionIds: selected };
+      const payload = { responses };
       if (!requiresLogin) {
         if (!voterName.trim()) {
           throw new Error("Enter a name");
@@ -121,7 +164,7 @@ export function PollVotePage() {
       const data = await submitVote(slug, payload);
       setPoll(data.poll);
       setAnonymousVoters(data.anonymousVoters || []);
-      setSelected(data.myVotes || []);
+      setResponses(data.myResponses || {});
       setSaved(true);
     } catch (err) {
       setError(err.message);
@@ -241,67 +284,30 @@ export function PollVotePage() {
           )}
         >
           {canVote && !requiresLogin && (
-                <div className="mb-5">
-                  {anonymousVoters.length > 0 ? (
-                    <>
-                      <label className="text-sm font-semibold text-foreground">Response</label>
-                      <select
-                        value={responseMode}
-                        onChange={(e) => {
-                          const mode = e.target.value;
-                          setResponseMode(mode);
-                          setError(null);
-                          setSaved(false);
-                          if (mode === "create") {
-                            setVoterName("");
-                            setSelected([]);
-                          }
-                        }}
-                        className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
-                      >
-                        <option value="create">Create new user response</option>
-                        <option value="edit">Edit response</option>
-                      </select>
+            <div className="mb-5">
+              {anonymousVoters.length > 0 ? (
+                <>
+                  <label className="text-sm font-semibold text-foreground">Response</label>
+                  <select
+                    value={responseMode}
+                    onChange={(e) => {
+                      const mode = e.target.value;
+                      setResponseMode(mode);
+                      setError(null);
+                      setSaved(false);
+                      if (mode === "create") {
+                        setVoterName("");
+                        setResponses({});
+                      }
+                    }}
+                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
+                  >
+                    <option value="create">Create new user response</option>
+                    <option value="edit">Edit response</option>
+                  </select>
 
-                      {responseMode === "create" ? (
-                        <div className="mt-4">
-                          <label className="text-sm font-semibold text-foreground">Your name</label>
-                          <input
-                            type="text"
-                            value={voterName}
-                            onChange={(e) => {
-                              setVoterName(e.target.value);
-                              setSaved(false);
-                            }}
-                            placeholder="e.g. Alex"
-                            className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
-                          />
-                        </div>
-                      ) : (
-                        <div className="mt-4">
-                          <label className="text-sm font-semibold text-foreground">Person</label>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            Pick a person who voted without logging in to update their answer.
-                          </p>
-                          <select
-                            value={voterName}
-                            onChange={(e) => {
-                              if (e.target.value) handleSelectExistingVoter(e.target.value);
-                            }}
-                            className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
-                          >
-                            <option value="">Select person...</option>
-                            {anonymousVoters.map((name) => (
-                              <option key={name} value={name}>
-                                {name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div>
+                  {responseMode === "create" ? (
+                    <div className="mt-4">
                       <label className="text-sm font-semibold text-foreground">Your name</label>
                       <input
                         type="text"
@@ -314,136 +320,202 @@ export function PollVotePage() {
                         className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
                       />
                     </div>
+                  ) : (
+                    <div className="mt-4">
+                      <label className="text-sm font-semibold text-foreground">Person</label>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Pick a person who voted without logging in to update their answer.
+                      </p>
+                      <select
+                        value={voterName}
+                        onChange={(e) => {
+                          if (e.target.value) handleSelectExistingVoter(e.target.value);
+                        }}
+                        className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
+                      >
+                        <option value="">Select person...</option>
+                        {anonymousVoters.map((name) => (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   )}
+                </>
+              ) : (
+                <div>
+                  <label className="text-sm font-semibold text-foreground">Your name</label>
+                  <input
+                    type="text"
+                    value={voterName}
+                    onChange={(e) => {
+                      setVoterName(e.target.value);
+                      setSaved(false);
+                    }}
+                    placeholder="e.g. Alex"
+                    className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
+                  />
                 </div>
               )}
-
-            <h2 className="text-sm font-semibold text-foreground">
-              {canVote ? "Which dates work for you?" : isLocked ? "Final results" : "Results"}
-            </h2>
-            {canVote && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                Select all the times that work
-                {!requiresLogin && responseMode === "edit" ? " for the person above" : " for you"}.
-              </p>
-            )}
-
-            <div className="mt-4 space-y-2.5">
-              {poll.options.map((opt) => {
-                const active = selected.includes(opt.id);
-                const pct = totalVoters ? Math.round((opt.vote_count / totalVoters) * 100) : 0;
-                const isWinner = isLocked && opt.id === poll.locked_option_id;
-                const Row = canVote ? "button" : "div";
-
-                return (
-                  <Row
-                    key={opt.id}
-                    type={canVote ? "button" : undefined}
-                    onClick={canVote ? () => toggle(opt.id) : undefined}
-                    className={cn(
-                      "block w-full rounded-2xl border p-3.5 text-left transition-colors",
-                      active
-                        ? "border-primary bg-primary-soft"
-                        : isWinner
-                          ? "border-success/40 bg-success/10"
-                          : "border-border bg-background",
-                      canVote && !active && "cursor-pointer hover:border-primary/40",
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      {canVote && (
-                        <span
-                          className={cn(
-                            "grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-colors",
-                            active ? "border-primary bg-primary text-white" : "border-border",
-                          )}
-                        >
-                          {active && <Check className="h-4 w-4" />}
-                        </span>
-                      )}
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
-                        {isRange(opt) ? (
-                          <CalendarRange className="h-5 w-5" />
-                        ) : opt.all_day ? (
-                          <Sun className="h-5 w-5" />
-                        ) : (
-                          <Calendar className="h-5 w-5" />
-                        )}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center justify-between gap-2">
-                          <span className="block truncate text-sm font-semibold capitalize text-foreground">
-                            {optionDateLabel(opt)}
-                          </span>
-                          <span className="shrink-0 text-xs font-semibold text-muted-foreground">
-                            {opt.vote_count}
-                            {poll.expected_responses ? ` / ${poll.expected_responses}` : ""}
-                          </span>
-                        </span>
-                        <span className="block text-xs text-muted-foreground">
-                          {optionTimeLabel(opt)}
-                        </span>
-                      </span>
-                    </div>
-
-                    <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-secondary">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all",
-                          isWinner ? "bg-success" : "bg-primary",
-                        )}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-
-                    {opt.voters?.length > 0 && (
-                      <p className="mt-1.5 text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground">
-                          {opt.voters.length} voted:
-                        </span>{" "}
-                        {opt.voters.join(", ")}
-                      </p>
-                    )}
-                  </Row>
-                );
-              })}
             </div>
+          )}
 
-            {canVote && (
-              <>
-                {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+          <h2 className="text-sm font-semibold text-foreground">
+            {canVote ? "Which dates work for you?" : isLocked ? "Final results" : "Results"}
+          </h2>
+          {canVote && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Mark accepted, maybe, or can&apos;t make it for each date
+              {!requiresLogin && responseMode === "edit" ? " for the person above" : ""}.
+            </p>
+          )}
 
-                <Button
-                  type="button"
-                  variant="hero"
-                  size="lg"
-                  className="mt-6 w-full"
-                  onClick={handleSubmit}
-                  disabled={saving}
+          <div className="mt-4 space-y-2.5">
+            {poll.options.map((opt) => {
+              const myStatus = responses[opt.id];
+              const pct = totalVoters ? Math.round((opt.vote_count / totalVoters) * 100) : 0;
+              const isWinner = isLocked && opt.id === poll.locked_option_id;
+              const rowActiveClasses = myStatus ? STATUS_META[myStatus].rowActiveClasses : null;
+
+              const groupedResponses = STATUS_ORDER.map((status) => ({
+                status,
+                names: (opt.responses || [])
+                  .filter((r) => r.status === status)
+                  .map((r) => r.name),
+              })).filter((group) => group.names.length > 0);
+
+              return (
+                <div
+                  key={opt.id}
+                  className={cn(
+                    "rounded-2xl border p-3.5 transition-colors",
+                    rowActiveClasses ||
+                      (isWinner ? "border-success/40 bg-success/10" : "border-border bg-background"),
+                  )}
                 >
-                  {saving ? "Saving..." : saved ? "Update response" : "Save response"}
-                </Button>
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
+                      {isRange(opt) ? (
+                        <CalendarRange className="h-5 w-5" />
+                      ) : opt.all_day ? (
+                        <Sun className="h-5 w-5" />
+                      ) : (
+                        <Calendar className="h-5 w-5" />
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="block truncate text-sm font-semibold capitalize text-foreground">
+                          {optionDateLabel(opt)}
+                        </span>
+                        <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                          {opt.vote_count}
+                          {poll.expected_responses ? ` / ${poll.expected_responses}` : ""}
+                        </span>
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {optionTimeLabel(opt)}
+                      </span>
+                    </span>
+                  </div>
 
-                {saved && !saving && (
-                  <p className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-success">
-                    <Check className="h-4 w-4" /> Response saved
-                  </p>
-                )}
+                  {canVote && (
+                    <div className="mt-3 flex gap-2">
+                      {STATUS_ORDER.map((status) => {
+                        const meta = STATUS_META[status];
+                        const Icon = meta.icon;
+                        const active = myStatus === status;
+                        return (
+                          <button
+                            key={status}
+                            type="button"
+                            title={meta.label}
+                            aria-label={meta.label}
+                            aria-pressed={active}
+                            onClick={() => setStatus(opt.id, status)}
+                            className={cn(
+                              "inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border py-2 text-xs font-semibold transition-colors",
+                              active
+                                ? meta.activeClasses
+                                : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                            )}
+                          >
+                            <Icon className="h-4 w-4" />
+                            {meta.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
 
-                <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
-                  {poll.hide_voter_names
-                    ? "Your response is shared with the poll creator"
-                    : "Your name and response are visible to everyone with this link"}
-                  {" "}and may be posted to the group&apos;s Discord or Slack channel if the creator
-                  connected one. See our{" "}
-                  <Link to="/privacy" className="font-medium underline hover:text-foreground">
-                    privacy policy
-                  </Link>
-                  .
-                </p>
-              </>
-            )}
+                  <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        isWinner ? "bg-success" : "bg-primary",
+                      )}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+
+                  {groupedResponses.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {groupedResponses.map(({ status, names }) => {
+                        const meta = STATUS_META[status];
+                        const Icon = meta.icon;
+                        return (
+                          <p
+                            key={status}
+                            className={cn("flex items-start gap-1.5 text-xs", meta.textClass)}
+                          >
+                            <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                            <span className="text-muted-foreground">{names.join(", ")}</span>
+                          </p>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {canVote && (
+            <>
+              {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+
+              <Button
+                type="button"
+                variant="hero"
+                size="lg"
+                className="mt-6 w-full"
+                onClick={handleSubmit}
+                disabled={saving}
+              >
+                {saving ? "Saving..." : saved ? "Update response" : "Save response"}
+              </Button>
+
+              {saved && !saving && (
+                <p className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-success">
+                  <Check className="h-4 w-4" /> Response saved
+                </p>
+              )}
+
+              <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
+                {poll.hide_voter_names
+                  ? "Your response is shared with the poll creator"
+                  : "Your name and response are visible to everyone with this link"}
+                {" "}and may be posted to the group&apos;s Discord or Slack channel if the creator
+                connected one. See our{" "}
+                <Link to="/privacy" className="font-medium underline hover:text-foreground">
+                  privacy policy
+                </Link>
+                .
+              </p>
+            </>
+          )}
+        </div>
 
         <Link
           to="/"

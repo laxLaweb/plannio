@@ -1,6 +1,8 @@
 const { getPool, query } = require("../db");
 const { countPollResponders } = require("./responses");
 
+const VALID_STATUSES = new Set(["yes", "maybe", "no"]);
+
 function normalizeVoterName(name) {
   const clean = String(name || "").trim();
   if (!clean) {
@@ -8,6 +10,20 @@ function normalizeVoterName(name) {
   }
   if (clean.length > 100) {
     throw new Error("Name is too long");
+  }
+  return clean;
+}
+
+// Responses come in as { [optionId]: "yes" | "maybe" | "no" }. Options left out
+// of the map simply have no vote row (treated as "no answer").
+function sanitizeResponses(raw) {
+  const clean = {};
+  if (raw && typeof raw === "object") {
+    for (const [optionId, status] of Object.entries(raw)) {
+      if (VALID_STATUSES.has(status)) {
+        clean[String(optionId)] = status;
+      }
+    }
   }
   return clean;
 }
@@ -35,12 +51,19 @@ async function getPollBySlug(slug) {
             to_char(o.start_time, 'HH24:MI') AS start_time,
             to_char(o.end_time, 'HH24:MI') AS end_time,
             o.all_day,
-            COUNT(v.id)::int AS vote_count,
+            COUNT(v.id) FILTER (WHERE v.status = 'yes')::int AS vote_count,
+            COUNT(v.id) FILTER (WHERE v.status = 'maybe')::int AS maybe_count,
+            COUNT(v.id) FILTER (WHERE v.status = 'no')::int AS no_count,
             COALESCE(
               json_agg(v.voter_name ORDER BY v.created_at)
+              FILTER (WHERE v.id IS NOT NULL AND v.status = 'yes'),
+              '[]'
+            ) AS voters,
+            COALESCE(
+              json_agg(json_build_object('name', v.voter_name, 'status', v.status) ORDER BY v.created_at)
               FILTER (WHERE v.id IS NOT NULL),
               '[]'
-            ) AS voters
+            ) AS responses
      FROM poll_options o
      LEFT JOIN votes v ON v.poll_option_id = o.id
      WHERE o.poll_id = $1
@@ -55,6 +78,7 @@ async function getPollBySlug(slug) {
   if (poll.hide_voter_names) {
     for (const option of poll.options) {
       option.voters = [];
+      option.responses = [];
     }
   }
 
@@ -63,13 +87,17 @@ async function getPollBySlug(slug) {
 
 async function getUserVotes(pollId, userId) {
   const result = await query(
-    `SELECT v.poll_option_id
+    `SELECT v.poll_option_id, v.status
      FROM votes v
      JOIN poll_options o ON o.id = v.poll_option_id
      WHERE o.poll_id = $1 AND v.user_id = $2`,
     [pollId, userId],
   );
-  return result.rows.map((row) => row.poll_option_id);
+  const responses = {};
+  for (const row of result.rows) {
+    responses[row.poll_option_id] = row.status;
+  }
+  return responses;
 }
 
 async function getAnonymousVoterNames(pollId) {
@@ -87,25 +115,26 @@ async function getAnonymousVoterNames(pollId) {
 async function getAnonymousVotes(pollId, voterName) {
   const cleanName = normalizeVoterName(voterName);
   const result = await query(
-    `SELECT v.poll_option_id
+    `SELECT v.poll_option_id, v.status
      FROM votes v
      JOIN poll_options o ON o.id = v.poll_option_id
      WHERE o.poll_id = $1 AND v.user_id IS NULL
        AND lower(trim(v.voter_name)) = lower($2)`,
     [pollId, cleanName],
   );
-  return result.rows.map((row) => row.poll_option_id);
+  const responses = {};
+  for (const row of result.rows) {
+    responses[row.poll_option_id] = row.status;
+  }
+  return responses;
 }
 
-async function submitAuthenticatedVote({ pollId, userId, voterName, optionIds }) {
-  const ids = Array.isArray(optionIds) ? [...new Set(optionIds.map(String))] : [];
+async function submitAuthenticatedVote({ pollId, userId, voterName, responses }) {
+  const cleanResponses = sanitizeResponses(responses);
 
-  const validResult = await query(
-    `SELECT id FROM poll_options WHERE poll_id = $1`,
-    [pollId],
-  );
+  const validResult = await query(`SELECT id FROM poll_options WHERE poll_id = $1`, [pollId]);
   const validIds = new Set(validResult.rows.map((row) => row.id));
-  const chosen = ids.filter((id) => validIds.has(id));
+  const entries = Object.entries(cleanResponses).filter(([optionId]) => validIds.has(optionId));
 
   const pool = getPool();
   const client = await pool.connect();
@@ -120,11 +149,11 @@ async function submitAuthenticatedVote({ pollId, userId, voterName, optionIds })
       [userId, pollId],
     );
 
-    for (const optionId of chosen) {
+    for (const [optionId, status] of entries) {
       await client.query(
-        `INSERT INTO votes (poll_option_id, user_id, voter_name)
-         VALUES ($1, $2, $3)`,
-        [optionId, userId, voterName],
+        `INSERT INTO votes (poll_option_id, user_id, voter_name, status)
+         VALUES ($1, $2, $3, $4)`,
+        [optionId, userId, voterName, status],
       );
     }
 
@@ -136,19 +165,18 @@ async function submitAuthenticatedVote({ pollId, userId, voterName, optionIds })
     client.release();
   }
 
-  return { chosen, voterName };
+  const responseMap = Object.fromEntries(entries);
+  const chosen = entries.filter(([, status]) => status === "yes").map(([optionId]) => optionId);
+  return { responses: responseMap, chosen, voterName };
 }
 
-async function submitAnonymousVote({ pollId, voterName, optionIds }) {
+async function submitAnonymousVote({ pollId, voterName, responses }) {
   const cleanName = normalizeVoterName(voterName);
-  const ids = Array.isArray(optionIds) ? [...new Set(optionIds.map(String))] : [];
+  const cleanResponses = sanitizeResponses(responses);
 
-  const validResult = await query(
-    `SELECT id FROM poll_options WHERE poll_id = $1`,
-    [pollId],
-  );
+  const validResult = await query(`SELECT id FROM poll_options WHERE poll_id = $1`, [pollId]);
   const validIds = new Set(validResult.rows.map((row) => row.id));
-  const chosen = ids.filter((id) => validIds.has(id));
+  const entries = Object.entries(cleanResponses).filter(([optionId]) => validIds.has(optionId));
 
   const pool = getPool();
   const client = await pool.connect();
@@ -164,11 +192,11 @@ async function submitAnonymousVote({ pollId, voterName, optionIds }) {
       [cleanName, pollId],
     );
 
-    for (const optionId of chosen) {
+    for (const [optionId, status] of entries) {
       await client.query(
-        `INSERT INTO votes (poll_option_id, user_id, voter_name)
-         VALUES ($1, NULL, $2)`,
-        [optionId, cleanName],
+        `INSERT INTO votes (poll_option_id, user_id, voter_name, status)
+         VALUES ($1, NULL, $2, $3)`,
+        [optionId, cleanName, status],
       );
     }
 
@@ -180,7 +208,9 @@ async function submitAnonymousVote({ pollId, voterName, optionIds }) {
     client.release();
   }
 
-  return { chosen, voterName: cleanName };
+  const responseMap = Object.fromEntries(entries);
+  const chosen = entries.filter(([, status]) => status === "yes").map(([optionId]) => optionId);
+  return { responses: responseMap, chosen, voterName: cleanName };
 }
 
 module.exports = {

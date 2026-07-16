@@ -73,9 +73,9 @@ export function getPublicPoll(slug, voterName) {
   return request(`/api/p/${slug}${params}`);
 }
 
-export function submitVote(slug, { optionIds, voterName }) {
+export function submitVote(slug, { responses, voterName }) {
   return request(`/api/p/${slug}/vote`, {
     method: "POST",
-    body: JSON.stringify({ optionIds, voterName }),
+    body: JSON.stringify({ responses, voterName }),
   });
 }

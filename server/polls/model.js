@@ -207,10 +207,10 @@ async function createPoll({
         [poll.id, option.date, option.endDate, option.time, option.endTime, option.allDay],
       );
 
-      // Opretteren stemmer automatisk på alle datoer de foreslår
+      // Opretteren stemmer automatisk "ja" på alle datoer de foreslår
       await client.query(
-        `INSERT INTO votes (poll_option_id, user_id, voter_name)
-         VALUES ($1, $2, $3)`,
+        `INSERT INTO votes (poll_option_id, user_id, voter_name, status)
+         VALUES ($1, $2, $3, 'yes')`,
         [optionResult.rows[0].id, userId, voterName || null],
       );
     }
@@ -276,12 +276,19 @@ async function loadOptionsWithVotes(pollId) {
             to_char(o.start_time, 'HH24:MI') AS start_time,
             to_char(o.end_time, 'HH24:MI') AS end_time,
             o.all_day,
-            COUNT(v.id)::int AS vote_count,
+            COUNT(v.id) FILTER (WHERE v.status = 'yes')::int AS vote_count,
+            COUNT(v.id) FILTER (WHERE v.status = 'maybe')::int AS maybe_count,
+            COUNT(v.id) FILTER (WHERE v.status = 'no')::int AS no_count,
             COALESCE(
               json_agg(v.voter_name ORDER BY v.created_at)
+              FILTER (WHERE v.id IS NOT NULL AND v.status = 'yes'),
+              '[]'
+            ) AS voters,
+            COALESCE(
+              json_agg(json_build_object('name', v.voter_name, 'status', v.status) ORDER BY v.created_at)
               FILTER (WHERE v.id IS NOT NULL),
               '[]'
-            ) AS voters
+            ) AS responses
      FROM poll_options o
      LEFT JOIN votes v ON v.poll_option_id = o.id
      WHERE o.poll_id = $1

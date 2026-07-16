@@ -47,21 +47,21 @@ router.get("/:slug", async (req, res) => {
       return res.status(404).json({ error: "Poll not found" });
     }
 
-    let myVotes = [];
+    let myResponses = {};
     const voterName = String(req.query.voterName || "").trim();
 
     if (poll.require_login) {
       if (req.session?.userId) {
-        myVotes = await getUserVotes(poll.id, req.session.userId);
+        myResponses = await getUserVotes(poll.id, req.session.userId);
       }
     } else if (voterName) {
-      myVotes = await getAnonymousVotes(poll.id, voterName);
+      myResponses = await getAnonymousVotes(poll.id, voterName);
     }
 
     const anonymousVoters =
       poll.require_login || poll.hide_voter_names ? [] : await getAnonymousVoterNames(poll.id);
 
-    res.json({ poll, myVotes, anonymousVoters });
+    res.json({ poll, myResponses, anonymousVoters });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -78,7 +78,7 @@ router.post("/:slug/vote", async (req, res) => {
       return res.status(400).json({ error: "This poll is locked — no new responses are accepted." });
     }
 
-    const { optionIds, voterName } = req.body;
+    const { responses, voterName } = req.body;
     let result;
 
     if (poll.require_login) {
@@ -90,13 +90,13 @@ router.post("/:slug/vote", async (req, res) => {
         pollId: poll.id,
         userId: req.session.userId,
         voterName: req.session.user?.displayName || "Participant",
-        optionIds,
+        responses,
       });
     } else {
       result = await submitAnonymousVote({
         pollId: poll.id,
         voterName,
-        optionIds,
+        responses,
       });
     }
 
@@ -104,7 +104,7 @@ router.post("/:slug/vote", async (req, res) => {
     const anonymousVoters =
       poll.require_login || poll.hide_voter_names ? [] : await getAnonymousVoterNames(poll.id);
 
-    res.json({ poll: updated, myVotes: result.chosen, anonymousVoters });
+    res.json({ poll: updated, myResponses: result.responses, anonymousVoters });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
