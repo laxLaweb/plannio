@@ -17,11 +17,11 @@ const {
 const {
   upsertDiscordUser,
   upsertSlackUser,
-  serializeUser,
   findUserByEmailWithPassword,
   createUserWithPassword,
   deleteUserById,
   exportUserData,
+  buildSessionUser,
 } = require("../auth/users");
 const { verifyPassword } = require("../auth/password");
 
@@ -44,8 +44,12 @@ function establishSession(req, user, loginProvider, done) {
       return done(error);
     }
     req.session.userId = user.id;
-    req.session.user = { ...serializeUser(user), loginProvider };
-    req.session.save(done);
+    buildSessionUser(user.id, loginProvider)
+      .then((sessionUser) => {
+        req.session.user = sessionUser;
+        req.session.save(done);
+      })
+      .catch(done);
   });
 }
 
@@ -56,6 +60,19 @@ function getAppUrl() {
 function redirectWithError(res, message) {
   const params = new URLSearchParams({ error: message });
   res.redirect(`${getAppUrl()}/login?${params.toString()}`);
+}
+
+function redirectAccountError(res, message) {
+  const params = new URLSearchParams({ error: message });
+  res.redirect(`${getAppUrl()}/account?${params.toString()}`);
+}
+
+async function refreshSessionUser(req, loginProvider) {
+  const sessionUser = await buildSessionUser(req.session.userId, loginProvider);
+  if (sessionUser) {
+    req.session.user = sessionUser;
+  }
+  return sessionUser;
 }
 
 function normalizeEmail(value) {
@@ -94,12 +111,53 @@ router.get("/providers", (_req, res) => {
 
 // 200 (not 401) for anonymous visitors: a 401 here logs a console error in the
 // browser on every page load, which hurts Lighthouse Best Practices.
-router.get("/me", (req, res) => {
+router.get("/me", async (req, res) => {
   if (!req.session?.userId) {
     return res.json({ user: null });
   }
 
-  res.json({ user: req.session.user });
+  try {
+    const user = await refreshSessionUser(req, req.session.user?.loginProvider);
+    res.json({ user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/link/discord", requireAuth, (req, res) => {
+  if (!getDiscordConfig()) {
+    return res.status(503).json({ error: "Discord login is not configured yet" });
+  }
+
+  const state = createOAuthState();
+  req.session.oauthState = state;
+  req.session.oauthLinkMode = "discord";
+
+  req.session.save((error) => {
+    if (error) {
+      console.error("Session save fejl:", error.message);
+      return redirectAccountError(res, "Could not start Discord linking");
+    }
+    res.redirect(getDiscordAuthUrl(state));
+  });
+});
+
+router.get("/link/slack", requireAuth, (req, res) => {
+  if (!getSlackConfig()) {
+    return res.status(503).json({ error: "Slack login is not configured yet" });
+  }
+
+  const state = createOAuthState();
+  req.session.slackOauthState = state;
+  req.session.oauthLinkMode = "slack";
+
+  req.session.save((error) => {
+    if (error) {
+      console.error("Session save fejl:", error.message);
+      return redirectAccountError(res, "Could not start Slack linking");
+    }
+    res.redirect(getSlackAuthUrl(state));
+  });
 });
 
 router.get("/discord", (req, res) => {
@@ -132,10 +190,31 @@ router.get("/discord/callback", async (req, res) => {
 
   delete req.session.oauthState;
 
+  const linkMode = req.session.oauthLinkMode === "discord";
+  if (linkMode) {
+    delete req.session.oauthLinkMode;
+  }
+
   try {
     const token = await exchangeDiscordCode(code);
     const discordUser = await fetchDiscordUser(token.access_token);
-    // Hvis brugeren allerede er logget ind, knyttes Discord til den eksisterende konto
+
+    if (linkMode && req.session.userId) {
+      await upsertDiscordUser(discordUser, req.session.userId);
+      await refreshSessionUser(req, req.session.user?.loginProvider);
+
+      return req.session.save((saveError) => {
+        if (saveError) {
+          return redirectAccountError(res, "Could not save session");
+        }
+        res.redirect(`${getAppUrl()}/account?linked=discord`);
+      });
+    }
+
+    if (linkMode) {
+      return redirectAccountError(res, "Session expired — sign in again and retry linking");
+    }
+
     const user = await upsertDiscordUser(discordUser, req.session.userId || null);
 
     establishSession(req, user, "discord", (saveError) => {
@@ -146,6 +225,9 @@ router.get("/discord/callback", async (req, res) => {
     });
   } catch (callbackError) {
     console.error("Discord callback fejl:", callbackError.message);
+    if (linkMode) {
+      return redirectAccountError(res, callbackError.message);
+    }
     redirectWithError(res, "Login failed — try again");
   }
 });
@@ -180,10 +262,31 @@ router.get("/slack/callback", async (req, res) => {
 
   delete req.session.slackOauthState;
 
+  const linkMode = req.session.oauthLinkMode === "slack";
+  if (linkMode) {
+    delete req.session.oauthLinkMode;
+  }
+
   try {
     const token = await exchangeSlackCode(code);
     const slackUser = await fetchSlackUser(token.access_token);
-    // If the user is already logged in, link Slack to the existing account instead.
+
+    if (linkMode && req.session.userId) {
+      await upsertSlackUser(slackUser, req.session.userId);
+      await refreshSessionUser(req, req.session.user?.loginProvider);
+
+      return req.session.save((saveError) => {
+        if (saveError) {
+          return redirectAccountError(res, "Could not save session");
+        }
+        res.redirect(`${getAppUrl()}/account?linked=slack`);
+      });
+    }
+
+    if (linkMode) {
+      return redirectAccountError(res, "Session expired — sign in again and retry linking");
+    }
+
     const user = await upsertSlackUser(slackUser, req.session.userId || null);
 
     establishSession(req, user, "slack", (saveError) => {
@@ -194,6 +297,9 @@ router.get("/slack/callback", async (req, res) => {
     });
   } catch (callbackError) {
     console.error("Slack callback fejl:", callbackError.message);
+    if (linkMode) {
+      return redirectAccountError(res, callbackError.message);
+    }
     redirectWithError(res, "Login failed — try again");
   }
 });

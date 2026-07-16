@@ -56,6 +56,14 @@ export function startSlackLogin(redirectTo) {
   window.location.href = "/api/auth/slack";
 }
 
+export function startDiscordLink() {
+  window.location.href = "/api/auth/link/discord";
+}
+
+export function startSlackLink() {
+  window.location.href = "/api/auth/link/slack";
+}
+
 function ProviderButton({ children, disabled, onClick, className }) {
   return (
     <button type="button" disabled={disabled} onClick={onClick} className={className}>

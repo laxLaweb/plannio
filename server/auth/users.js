@@ -67,6 +67,31 @@ async function getUserProviders(userId) {
   return result.rows.map((row) => row.provider);
 }
 
+async function userHasPassword(userId) {
+  const result = await query(
+    `SELECT (password_hash IS NOT NULL) AS has_password FROM users WHERE id = $1`,
+    [userId],
+  );
+  return Boolean(result.rows[0]?.has_password);
+}
+
+async function buildSessionUser(userId, loginProvider) {
+  const user = await findUserById(userId);
+  if (!user) {
+    return null;
+  }
+
+  const linkedProviders = await getUserProviders(userId);
+  const hasPassword = await userHasPassword(userId);
+
+  return {
+    ...serializeUser(user),
+    loginProvider: loginProvider || null,
+    linkedProviders,
+    hasPassword,
+  };
+}
+
 async function linkIdentity(userId, provider, providerUserId) {
   await query(
     `INSERT INTO user_identities (user_id, provider, provider_user_id)
@@ -102,13 +127,21 @@ async function upsertOAuthUser({
   // 1. Kender vi allerede denne provider-identitet? → log ind på den konto
   const byProvider = await findUserByProvider(provider, providerUserId);
   if (byProvider) {
-    return updateUserProfile(byProvider.id, { displayName, email, avatarUrl });
+    if (currentUserId && byProvider.id !== currentUserId) {
+      throw new Error("This sign-in method is already linked to another account");
+    }
+    return updateUserProfile(byProvider.id, {
+      displayName,
+      email: currentUserId ? null : email,
+      avatarUrl,
+    });
   }
 
   // 2. Brugeren er allerede logget ind → knyt den nye login-metode til samme konto
   if (currentUserId) {
     await linkIdentity(currentUserId, provider, providerUserId);
-    return updateUserProfile(currentUserId, { displayName, email, avatarUrl });
+    // Bevar den eksisterende email — OAuth-email kan afvige fra kontoens email.
+    return updateUserProfile(currentUserId, { displayName, avatarUrl });
   }
 
   // 3. Findes en konto med samme email? → flet den nye login-metode ind i den
@@ -222,6 +255,8 @@ module.exports = {
   findUserByEmailWithPassword,
   createUserWithPassword,
   getUserProviders,
+  userHasPassword,
+  buildSessionUser,
   linkIdentity,
   upsertOAuthUser,
   upsertDiscordUser,
