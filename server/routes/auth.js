@@ -166,6 +166,7 @@ router.get("/discord", (req, res) => {
   }
 
   const state = createOAuthState();
+  delete req.session.oauthLinkMode;
   req.session.oauthState = state;
 
   req.session.save((error) => {
@@ -215,7 +216,7 @@ router.get("/discord/callback", async (req, res) => {
       return redirectAccountError(res, "Session expired — sign in again and retry linking");
     }
 
-    const user = await upsertDiscordUser(discordUser, req.session.userId || null);
+    const user = await upsertDiscordUser(discordUser, null);
 
     establishSession(req, user, "discord", (saveError) => {
       if (saveError) {
@@ -228,7 +229,7 @@ router.get("/discord/callback", async (req, res) => {
     if (linkMode) {
       return redirectAccountError(res, callbackError.message);
     }
-    redirectWithError(res, "Login failed — try again");
+    redirectWithError(res, callbackError.message || "Login failed — try again");
   }
 });
 
@@ -238,6 +239,7 @@ router.get("/slack", (req, res) => {
   }
 
   const state = createOAuthState();
+  delete req.session.oauthLinkMode;
   req.session.slackOauthState = state;
 
   req.session.save((error) => {
@@ -287,7 +289,7 @@ router.get("/slack/callback", async (req, res) => {
       return redirectAccountError(res, "Session expired — sign in again and retry linking");
     }
 
-    const user = await upsertSlackUser(slackUser, req.session.userId || null);
+    const user = await upsertSlackUser(slackUser, null);
 
     establishSession(req, user, "slack", (saveError) => {
       if (saveError) {
@@ -300,7 +302,7 @@ router.get("/slack/callback", async (req, res) => {
     if (linkMode) {
       return redirectAccountError(res, callbackError.message);
     }
-    redirectWithError(res, "Login failed — try again");
+    redirectWithError(res, callbackError.message || "Login failed — try again");
   }
 });
 
