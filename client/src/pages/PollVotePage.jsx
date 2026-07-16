@@ -203,7 +203,7 @@ export function PollVotePage() {
           </div>
         )}
 
-        {showLoginGate ? (
+        {showLoginGate && (
           <div className="mt-8 rounded-3xl border border-border bg-card p-8 text-center shadow-card">
             <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[#5865F2]/10 text-[#5865F2]">
               <DiscordIcon />
@@ -232,10 +232,15 @@ export function PollVotePage() {
               </button>
             </div>
           </div>
-        ) : (
-          canVote && (
-            <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-soft">
-              {!requiresLogin && (
+        )}
+
+        <div
+          className={cn(
+            "rounded-3xl border border-border bg-card p-6 shadow-soft",
+            showLoginGate ? "mt-6" : "mt-8",
+          )}
+        >
+          {canVote && !requiresLogin && (
                 <div className="mb-5">
                   {anonymousVoters.length > 0 ? (
                     <>
@@ -313,35 +318,49 @@ export function PollVotePage() {
                 </div>
               )}
 
-              <h2 className="text-sm font-semibold text-foreground">Which dates work for you?</h2>
+            <h2 className="text-sm font-semibold text-foreground">
+              {canVote ? "Which dates work for you?" : isLocked ? "Final results" : "Results"}
+            </h2>
+            {canVote && (
               <p className="mt-1 text-xs text-muted-foreground">
                 Select all the times that work
                 {!requiresLogin && responseMode === "edit" ? " for the person above" : " for you"}.
               </p>
+            )}
 
-              <div className="mt-4 space-y-2.5">
-                {poll.options.map((opt) => {
-                  const active = selected.includes(opt.id);
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => toggle(opt.id)}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left transition-colors",
-                        active
-                          ? "border-primary bg-primary-soft"
-                          : "border-border bg-background hover:border-primary/40",
+            <div className="mt-4 space-y-2.5">
+              {poll.options.map((opt) => {
+                const active = selected.includes(opt.id);
+                const pct = totalVoters ? Math.round((opt.vote_count / totalVoters) * 100) : 0;
+                const isWinner = isLocked && opt.id === poll.locked_option_id;
+                const Row = canVote ? "button" : "div";
+
+                return (
+                  <Row
+                    key={opt.id}
+                    type={canVote ? "button" : undefined}
+                    onClick={canVote ? () => toggle(opt.id) : undefined}
+                    className={cn(
+                      "block w-full rounded-2xl border p-3.5 text-left transition-colors",
+                      active
+                        ? "border-primary bg-primary-soft"
+                        : isWinner
+                          ? "border-success/40 bg-success/10"
+                          : "border-border bg-background",
+                      canVote && !active && "cursor-pointer hover:border-primary/40",
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      {canVote && (
+                        <span
+                          className={cn(
+                            "grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-colors",
+                            active ? "border-primary bg-primary text-white" : "border-border",
+                          )}
+                        >
+                          {active && <Check className="h-4 w-4" />}
+                        </span>
                       )}
-                    >
-                      <span
-                        className={cn(
-                          "grid h-6 w-6 shrink-0 place-items-center rounded-md border transition-colors",
-                          active ? "border-primary bg-primary text-white" : "border-border",
-                        )}
-                      >
-                        {active && <Check className="h-4 w-4" />}
-                      </span>
                       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-primary">
                         {isRange(opt) ? (
                           <CalendarRange className="h-5 w-5" />
@@ -351,80 +370,80 @@ export function PollVotePage() {
                           <Calendar className="h-5 w-5" />
                         )}
                       </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-sm font-semibold capitalize text-foreground">
-                          {optionDateLabel(opt)}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="block truncate text-sm font-semibold capitalize text-foreground">
+                            {optionDateLabel(opt)}
+                          </span>
+                          <span className="shrink-0 text-xs font-semibold text-muted-foreground">
+                            {opt.vote_count}
+                            {poll.expected_responses ? ` / ${poll.expected_responses}` : ""}
+                          </span>
                         </span>
                         <span className="block text-xs text-muted-foreground">
                           {optionTimeLabel(opt)}
-                          {opt.vote_count > 0 && ` · ${opt.vote_count} available`}
                         </span>
                       </span>
-                    </button>
-                  );
-                })}
-              </div>
+                    </div>
 
-              {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+                    <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          isWinner ? "bg-success" : "bg-primary",
+                        )}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
 
-              <Button
-                type="button"
-                variant="hero"
-                size="lg"
-                className="mt-6 w-full"
-                onClick={handleSubmit}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : saved ? "Update response" : "Save response"}
-              </Button>
-
-              {saved && !saving && (
-                <p className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-success">
-                  <Check className="h-4 w-4" /> Response saved
-                </p>
-              )}
-
-              <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
-                {poll.hide_voter_names
-                  ? "Your response is shared with the poll creator"
-                  : "Your name and response are visible to everyone with this link"}
-                {" "}and may be posted to the group&apos;s Discord or Slack channel if the creator
-                connected one. See our{" "}
-                <Link to="/privacy" className="font-medium underline hover:text-foreground">
-                  privacy policy
-                </Link>
-                .
-              </p>
+                    {opt.voters?.length > 0 && (
+                      <p className="mt-1.5 text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">
+                          {opt.voters.length} voted:
+                        </span>{" "}
+                        {opt.voters.join(", ")}
+                      </p>
+                    )}
+                  </Row>
+                );
+              })}
             </div>
-          )
-        )}
 
-        <div className="mt-6 rounded-3xl border border-border bg-card p-6 shadow-soft">
-          <h2 className="text-sm font-semibold text-foreground">
-            {isLocked ? "Final results" : "Results"}
-          </h2>
-          <div className="mt-4 space-y-3">
-            {poll.options.map((opt) => (
-              <div key={opt.id}>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium capitalize text-foreground">{optionDateLabel(opt)}</span>
-                  <span className="text-muted-foreground">{opt.vote_count}</span>
-                </div>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all"
-                    style={{
-                      width: totalVoters ? `${(opt.vote_count / totalVoters) * 100}%` : "0%",
-                    }}
-                  />
-                </div>
-                {opt.voters?.length > 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground">{opt.voters.join(", ")}</p>
+            {canVote && (
+              <>
+                {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+
+                <Button
+                  type="button"
+                  variant="hero"
+                  size="lg"
+                  className="mt-6 w-full"
+                  onClick={handleSubmit}
+                  disabled={saving}
+                >
+                  {saving ? "Saving..." : saved ? "Update response" : "Save response"}
+                </Button>
+
+                {saved && !saving && (
+                  <p className="mt-3 flex items-center justify-center gap-1.5 text-sm font-medium text-success">
+                    <Check className="h-4 w-4" /> Response saved
+                  </p>
                 )}
-              </div>
-            ))}
+
+                <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
+                  {poll.hide_voter_names
+                    ? "Your response is shared with the poll creator"
+                    : "Your name and response are visible to everyone with this link"}
+                  {" "}and may be posted to the group&apos;s Discord or Slack channel if the creator
+                  connected one. See our{" "}
+                  <Link to="/privacy" className="font-medium underline hover:text-foreground">
+                    privacy policy
+                  </Link>
+                  .
+                </p>
+              </>
+            )}
           </div>
-        </div>
 
         <Link
           to="/"
