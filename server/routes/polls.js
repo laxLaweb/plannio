@@ -10,6 +10,7 @@ const {
 } = require("../polls/model");
 const { notifyPollEvent } = require("../integrations/notify");
 const { formatOptionLabel } = require("../integrations/shared");
+const { getUserProviders, canConnectChannelProvider } = require("../auth/users");
 
 const router = Router();
 
@@ -41,10 +42,11 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     // Webhook-URL'erne kommer fra sessionen (OAuth-flowet), ikke fra klienten.
-    const loginProvider = req.session.user?.loginProvider;
+    const linked = await getUserProviders(req.session.userId);
+    const sessionUser = { ...req.session.user, linkedProviders: linked };
     const pendingDiscord = req.session.pendingDiscordWebhook;
     let discordConfig = null;
-    if (loginProvider !== "slack" && discord?.enabled && pendingDiscord?.url) {
+    if (canConnectChannelProvider(sessionUser, "discord") && discord?.enabled && pendingDiscord?.url) {
       discordConfig = {
         webhookUrl: pendingDiscord.url,
         webhookId: pendingDiscord.webhookId,
@@ -56,7 +58,7 @@ router.post("/", async (req, res) => {
 
     const pendingSlack = req.session.pendingSlackWebhook;
     let slackConfig = null;
-    if (loginProvider !== "discord" && slack?.enabled && pendingSlack?.url) {
+    if (canConnectChannelProvider(sessionUser, "slack") && slack?.enabled && pendingSlack?.url) {
       slackConfig = {
         webhookUrl: pendingSlack.url,
         channelName: pendingSlack.channelName,

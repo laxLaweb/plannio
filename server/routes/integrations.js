@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const { requireAuth } = require("../auth/middleware");
 const { createOAuthState } = require("../auth/session");
-const { getUserProviders, linkIdentity } = require("../auth/users");
+const { getUserProviders, linkIdentity, canConnectChannelProvider } = require("../auth/users");
 const { fetchDiscordUser } = require("../auth/discord");
 const {
   getWebhookConfig: getDiscordWebhookConfig,
@@ -58,9 +58,12 @@ router.get("/discord/status", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/discord/connect", requireAuth, (req, res) => {
-  if (req.session.user?.loginProvider === "slack") {
-    return res.status(403).send("You can only connect a Discord channel when logged in with Discord");
+router.get("/discord/connect", requireAuth, async (req, res) => {
+  const linked = await getUserProviders(req.session.userId);
+  if (!canConnectChannelProvider({ ...req.session.user, linkedProviders: linked }, "discord")) {
+    return res
+      .status(403)
+      .send("Connect Discord from your account settings or sign in with Discord first");
   }
 
   if (!getDiscordWebhookConfig()) {
@@ -171,9 +174,12 @@ router.get("/slack/status", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/slack/connect", requireAuth, (req, res) => {
-  if (req.session.user?.loginProvider === "discord") {
-    return res.status(403).send("You can only connect a Slack channel when logged in with Slack");
+router.get("/slack/connect", requireAuth, async (req, res) => {
+  const linked = await getUserProviders(req.session.userId);
+  if (!canConnectChannelProvider({ ...req.session.user, linkedProviders: linked }, "slack")) {
+    return res
+      .status(403)
+      .send("Connect Slack from your account settings or sign in with Slack first");
   }
 
   if (!getSlackWebhookConfig()) {

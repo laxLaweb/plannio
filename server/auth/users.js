@@ -186,6 +186,13 @@ async function upsertSlackUser(slackUser, currentUserId = null) {
   });
 }
 
+function canConnectChannelProvider({ loginProvider, linkedProviders }, provider) {
+  const linked = linkedProviders || [];
+  if (linked.includes(provider)) return true;
+  if (loginProvider === "password") return true;
+  return loginProvider === provider;
+}
+
 function serializeUser(user) {
   return {
     id: user.id,
@@ -257,6 +264,7 @@ module.exports = {
   getUserProviders,
   userHasPassword,
   buildSessionUser,
+  canConnectChannelProvider,
   linkIdentity,
   upsertOAuthUser,
   upsertDiscordUser,

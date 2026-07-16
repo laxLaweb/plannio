@@ -169,9 +169,11 @@ function ProviderRow({ provider, connection }) {
 
 export function ChannelUpdates({ onChange, earliestDate }) {
   const { user } = useAuth();
-  const loginProvider = user?.loginProvider;
-  const showDiscord = loginProvider !== "slack";
-  const showSlack = loginProvider !== "discord";
+  const linked = user?.linkedProviders || [];
+  const showDiscord =
+    linked.includes("discord") || user?.loginProvider === "password" || user?.loginProvider === "discord";
+  const showSlack =
+    linked.includes("slack") || user?.loginProvider === "password" || user?.loginProvider === "slack";
 
   const discordConn = useProviderConnection("discord");
   const slackConn = useProviderConnection("slack");
