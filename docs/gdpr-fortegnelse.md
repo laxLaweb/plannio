@@ -1,6 +1,6 @@
 # GDPR-dokumentation for Plannio
 
-Senest opdateret: 9. juli 2026. Hold dette dokument i sync med `/privacy`-siden og
+Senest opdateret: 15. juli 2026. Hold dette dokument i sync med `/privacy`-siden og
 `server/polls/retention.js` (opbevaringsperiode).
 
 ## 1. Fortegnelse over behandlingsaktiviteter (art. 30)
@@ -14,7 +14,7 @@ Senest opdateret: 9. juli 2026. Hold dette dokument i sync med `/privacy`-siden 
 | 3 | Afstemninger og stemmer | Brugere og anonyme deltagere | Deltagernavn, valgte datoer | Finde et tidspunkt, der passer gruppen | Kontrakt / legitim interesse, art. 6(1)(f) | 12 mdr. efter seneste aktivitet (automatisk sletning) eller ved manuel sletning | Heroku; alle med poll-linket |
 | 4 | Kanal-notifikationer | Deltagere i polls med tilsluttet kanal | Deltagernavn, valgte datoer | Poll-opdateringer i gruppens kanal | Kontrakt; oplyses på afstemningssiden | Ligger herefter hos Discord/Slack | Discord/Slack (selvstændigt dataansvarlige) |
 | 5 | Sessioner | Registrerede brugere | Session-ID, bruger-ID | Holde brugeren logget ind | Nødvendig for tjenesten | 30 dage; udløbne sessioner slettes automatisk hver time | Heroku |
-| 6 | Analytics (kun hvis aktiveret) | Besøgende | Aggregeret, cookieless trafikdata | Trafikstatistik | Legitim interesse | Iht. udbyderens aftale | Analytics-udbyder (databehandler) |
+| 6 | Analytics (Google Analytics 4) | Besøgende der giver samtykke | Cookie-baseret trafikdata (`_ga` m.fl.), anonymiseret IP, klik/sidevisninger | Trafikstatistik | Samtykke, art. 6(1)(a) — GA loader først efter "Accepter" i cookie-banneret | Iht. Googles aftale (kontrolleres via GA-dataopbevaring) | Google Ireland Ltd. (databehandler); Google LLC/USA (underdatabehandler, EU–US Data Privacy Framework + SCC) |
 
 **Tekniske og organisatoriske foranstaltninger (art. 32):** HTTPS/HSTS, scrypt-hashede
 passwords, httpOnly/secure/sameSite session-cookies med regenerering ved login, rate
@@ -29,9 +29,14 @@ sletning af gamle polls og udløbne sessioner.
 - [ ] **Heroku (Salesforce) DPA:** Salesforces databehandleraftale accepteres automatisk
       via Master Subscription Agreement — arkivér en kopi fra
       https://www.salesforce.com/company/legal/agreements/
-- [ ] **Analytics (hvis det aktiveres):** Vælg en EU-hostet, cookieless udbyder (fx
-      Plausible EU eller selvhostet Umami). Indgå/arkivér databehandleraftale før
-      `VITE_ANALYTICS_SCRIPT` sættes i produktion.
+- [x] **Analytics — Google Analytics 4:** Aktiveret via `VITE_GA_MEASUREMENT_ID`. GA
+      loader kun efter aktivt samtykke i cookie-banneret (Consent Mode v2, default
+      denied). Cookie-info + tilbagetrækning står i `/privacy`.
+- [ ] **Google databehandleraftale:** Accepter/arkivér Googles "Data Processing Terms"
+      i GA Admin → Account settings → og gem en kopi sammen med GDPR-dokumentationen.
+      Bekræft at "Data Privacy Framework" / SCC gælder for US-overførsel.
+- [ ] **GA-dataopbevaring:** Sæt opbevaringsperioden i GA Admin → Data settings →
+      Data retention (fx 14 måneder) og notér den her.
 - [ ] **Discord/Slack:** Ikke databehandlere, men selvstændigt dataansvarlige for data i
       deres kanaler. Kræver ingen aftale, men er oplyst i privatlivspolitikken.
 

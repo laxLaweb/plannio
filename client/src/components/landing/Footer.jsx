@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
+import { useConsent } from "@/context/ConsentContext";
+
+const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
 const groups = [
   {
@@ -46,6 +49,8 @@ const groups = [
 ];
 
 export function Footer() {
+  const { resetConsent } = useConsent();
+
   return (
     <footer id="enterprise" className="border-t border-border bg-background">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
@@ -90,7 +95,18 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">© 2026 Plannio. All rights reserved.</p>
-          <p className="text-sm text-muted-foreground">Built for people who plan — not chase replies.</p>
+          <div className="flex items-center gap-4">
+            {GA_ID && (
+              <button
+                type="button"
+                onClick={resetConsent}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Cookie settings
+              </button>
+            )}
+            <p className="text-sm text-muted-foreground">Built for people who plan — not chase replies.</p>
+          </div>
         </div>
       </div>
     </footer>

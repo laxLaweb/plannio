@@ -2,8 +2,10 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CreatePollProvider } from "./context/CreatePollContext";
+import { ConsentProvider } from "./context/ConsentContext";
 import { LandingPage } from "./components/landing/LandingPage";
 import { Analytics, GoogleAnalyticsPageView } from "./components/Analytics";
+import { CookieBanner } from "./components/CookieBanner";
 
 const LoginPage = lazy(() =>
   import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })),
@@ -74,33 +76,36 @@ const DateRangesPage = lazy(() =>
 function App() {
   return (
     <BrowserRouter>
-      <Analytics />
-      <GoogleAnalyticsPageView />
-      <AuthProvider>
-        <CreatePollProvider>
-          <Suspense fallback={null}>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/discord-scheduling" element={<DiscordSchedulingPage />} />
-              <Route path="/slack-scheduling" element={<SlackSchedulingPage />} />
-              <Route path="/use-cases/weekend-trip" element={<WeekendTripPage />} />
-              <Route path="/use-cases/team-meetings" element={<TeamMeetingsPage />} />
-              <Route path="/use-cases/game-night" element={<GameNightPage />} />
-              <Route path="/guides/discord-poll-without-bot" element={<DiscordPollWithoutBotPage />} />
-              <Route path="/guides/stop-chasing-replies" element={<StopChasingRepliesPage />} />
-              <Route path="/guides/date-ranges" element={<DateRangesPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/account" element={<AccountPage />} />
-              <Route path="/polls" element={<MyPollsPage />} />
-              <Route path="/polls/new" element={<CreatePollPage />} />
-              <Route path="/polls/:id" element={<PollDetailPage />} />
-              <Route path="/p/:slug" element={<PollVotePage />} />
-            </Routes>
-          </Suspense>
-        </CreatePollProvider>
-      </AuthProvider>
+      <ConsentProvider>
+        <Analytics />
+        <GoogleAnalyticsPageView />
+        <AuthProvider>
+          <CreatePollProvider>
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/discord-scheduling" element={<DiscordSchedulingPage />} />
+                <Route path="/slack-scheduling" element={<SlackSchedulingPage />} />
+                <Route path="/use-cases/weekend-trip" element={<WeekendTripPage />} />
+                <Route path="/use-cases/team-meetings" element={<TeamMeetingsPage />} />
+                <Route path="/use-cases/game-night" element={<GameNightPage />} />
+                <Route path="/guides/discord-poll-without-bot" element={<DiscordPollWithoutBotPage />} />
+                <Route path="/guides/stop-chasing-replies" element={<StopChasingRepliesPage />} />
+                <Route path="/guides/date-ranges" element={<DateRangesPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/account" element={<AccountPage />} />
+                <Route path="/polls" element={<MyPollsPage />} />
+                <Route path="/polls/new" element={<CreatePollPage />} />
+                <Route path="/polls/:id" element={<PollDetailPage />} />
+                <Route path="/p/:slug" element={<PollVotePage />} />
+              </Routes>
+            </Suspense>
+          </CreatePollProvider>
+        </AuthProvider>
+        <CookieBanner />
+      </ConsentProvider>
     </BrowserRouter>
   );
 }

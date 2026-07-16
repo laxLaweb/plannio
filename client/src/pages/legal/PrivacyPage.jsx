@@ -18,7 +18,7 @@ export function PrivacyPage() {
       <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
         Privacy policy
       </h1>
-      <p className="mt-3 text-sm text-muted-foreground">Last updated: July 9, 2026</p>
+      <p className="mt-3 text-sm text-muted-foreground">Last updated: July 15, 2026</p>
 
       <div className="mt-6">
         <ContentLead>
@@ -67,10 +67,41 @@ export function PrivacyPage() {
           <li>
             <strong className="font-semibold text-foreground">Session cookie</strong> — a single
             strictly necessary cookie (<code>plannio.sid</code>) that keeps you signed in for up to
-            30 days. It is not used for tracking, so no cookie consent banner is required. We do
-            not use advertising or cross-site tracking cookies.
+            30 days. It is not used for tracking and does not require consent. We do not use
+            advertising or cross-site tracking cookies.
           </li>
         </ul>
+      </ContentSection>
+
+      <ContentSection title="Cookies and analytics">
+        <p>
+          We use two kinds of cookies:
+        </p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>
+            <strong className="font-semibold text-foreground">Strictly necessary</strong> — the
+            <code>plannio.sid</code> session cookie described above. It is required for the service
+            to work and is set without consent.
+          </li>
+          <li>
+            <strong className="font-semibold text-foreground">Analytics (Google Analytics 4)</strong>{" "}
+            — only if you accept them in the cookie banner. These cookies (for example{" "}
+            <code>_ga</code>) help us understand how many people visit and which pages are used, so
+            we can improve the site. They are set only after you click “Accept”. Legal basis: your
+            consent (GDPR art. 6(1)(a)).
+          </li>
+        </ul>
+        <p>
+          Google Analytics is provided by Google Ireland Limited, with Google LLC (USA) acting as a
+          sub-processor. This means analytics data may be transferred to the United States, safeguarded
+          by the EU–US Data Privacy Framework and Google’s standard contractual clauses. We have IP
+          anonymisation enabled and do not use the data for advertising.
+        </p>
+        <p>
+          You can withdraw or change your choice at any time via the{" "}
+          <strong className="font-semibold text-foreground">“Cookie settings”</strong> link in the
+          footer. Declining analytics cookies has no effect on how the service works.
+        </p>
       </ContentSection>
 
       <ContentSection title="Who can see your name">
@@ -97,6 +128,11 @@ export function PrivacyPage() {
             <strong className="font-semibold text-foreground">Discord / Slack</strong> — only if
             you sign in with them (they send us your profile) or a poll creator connects a channel
             (we send poll updates including participant names to that channel).
+          </li>
+          <li>
+            <strong className="font-semibold text-foreground">Google (Analytics)</strong> — only if
+            you accept analytics cookies. Aggregated usage data is processed by Google as described
+            in the “Cookies and analytics” section above.
           </li>
         </ul>
         <p>We never sell personal data or share it for advertising.</p>

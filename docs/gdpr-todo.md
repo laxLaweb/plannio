@@ -27,9 +27,12 @@ til "Færdigt", efterhånden som de bliver lavet.
   Verificér bagefter at retention-jobbet logger uden fejl (`heroku logs --tail`,
   kig efter "Retention:").
 
-- [ ] **Hvis analytics aktiveres:** vælg en EU-hostet, cookieless udbyder (fx Plausible
-  EU eller selvhostet Umami), indgå/arkivér databehandleraftale, og tilføj udbyderen
-  i privatlivspolitikken og i fortegnelsen — FØR `VITE_ANALYTICS_SCRIPT` sættes.
+- [ ] **Google Analytics — databehandleraftale + opbevaring:** GA4 er aktiveret med
+  samtykke-banner (Consent Mode v2). Mangler stadig manuelt i Google-kontoen:
+  1) accepter/arkivér Googles "Data Processing Terms" (GA Admin → Account settings),
+  2) bekræft Data Privacy Framework/SCC for US-overførsel,
+  3) sæt data-opbevaring (GA Admin → Data settings → Data retention, fx 14 mdr.).
+  Cookie-banner, privatlivspolitik og fortegnelse er allerede opdateret i koden.
 
 ## Løbende
 

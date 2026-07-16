@@ -46,6 +46,7 @@ export function PollVotePage() {
   const [poll, setPoll] = useState(null);
   const [anonymousVoters, setAnonymousVoters] = useState([]);
   const [voterName, setVoterName] = useState("");
+  const [responseMode, setResponseMode] = useState("create");
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -235,43 +236,78 @@ export function PollVotePage() {
           canVote && (
             <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-soft">
               {!requiresLogin && (
-                <div className="mb-5 space-y-4">
-                  <div>
-                    <label className="text-sm font-semibold text-foreground">Your name</label>
-                    <input
-                      type="text"
-                      value={voterName}
-                      onChange={(e) => {
-                        setVoterName(e.target.value);
-                        setSaved(false);
-                      }}
-                      placeholder="e.g. Alex"
-                      className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
-                    />
-                  </div>
-
-                  {anonymousVoters.length > 0 && (
-                    <div>
-                      <label className="text-sm font-semibold text-foreground">
-                        Edit someone else&apos;s response
-                      </label>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        Pick a person who voted without logging in to update their answer.
-                      </p>
+                <div className="mb-5">
+                  {anonymousVoters.length > 0 ? (
+                    <>
+                      <label className="text-sm font-semibold text-foreground">Response</label>
                       <select
-                        value=""
+                        value={responseMode}
                         onChange={(e) => {
-                          if (e.target.value) handleSelectExistingVoter(e.target.value);
+                          const mode = e.target.value;
+                          setResponseMode(mode);
+                          setError(null);
+                          setSaved(false);
+                          if (mode === "create") {
+                            setVoterName("");
+                            setSelected([]);
+                          }
                         }}
                         className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
                       >
-                        <option value="">Select person...</option>
-                        {anonymousVoters.map((name) => (
-                          <option key={name} value={name}>
-                            {name}
-                          </option>
-                        ))}
+                        <option value="create">Create new user response</option>
+                        <option value="edit">Edit response</option>
                       </select>
+
+                      {responseMode === "create" ? (
+                        <div className="mt-4">
+                          <label className="text-sm font-semibold text-foreground">Your name</label>
+                          <input
+                            type="text"
+                            value={voterName}
+                            onChange={(e) => {
+                              setVoterName(e.target.value);
+                              setSaved(false);
+                            }}
+                            placeholder="e.g. Alex"
+                            className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
+                          />
+                        </div>
+                      ) : (
+                        <div className="mt-4">
+                          <label className="text-sm font-semibold text-foreground">Person</label>
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            Pick a person who voted without logging in to update their answer.
+                          </p>
+                          <select
+                            value={voterName}
+                            onChange={(e) => {
+                              if (e.target.value) handleSelectExistingVoter(e.target.value);
+                            }}
+                            className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
+                          >
+                            <option value="">Select person...</option>
+                            {anonymousVoters.map((name) => (
+                              <option key={name} value={name}>
+                                {name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div>
+                      <label className="text-sm font-semibold text-foreground">Your name</label>
+                      <input
+                        type="text"
+                        value={voterName}
+                        onChange={(e) => {
+                          setVoterName(e.target.value);
+                          setSaved(false);
+                        }}
+                        placeholder="e.g. Alex"
+                        className="mt-2 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
+                      />
                     </div>
                   )}
                 </div>
@@ -279,7 +315,8 @@ export function PollVotePage() {
 
               <h2 className="text-sm font-semibold text-foreground">Which dates work for you?</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Select all the times that work{!requiresLogin ? " for the person above" : " for you"}.
+                Select all the times that work
+                {!requiresLogin && responseMode === "edit" ? " for the person above" : " for you"}.
               </p>
 
               <div className="mt-4 space-y-2.5">
