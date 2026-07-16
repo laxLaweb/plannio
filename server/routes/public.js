@@ -78,7 +78,26 @@ router.post("/:slug/vote", async (req, res) => {
       return res.status(400).json({ error: "This poll is locked — no new responses are accepted." });
     }
 
-    const { responses, voterName } = req.body;
+    const { responses: rawResponses, voterName } = req.body;
+
+    // Serverside-håndhævelse: hvis ejeren ikke tillader "måske", nedgraderes den til ingen stemme.
+    const responses =
+      rawResponses && !poll.allow_maybe
+        ? Object.fromEntries(
+            Object.entries(rawResponses).filter(([, status]) => status !== "maybe"),
+          )
+        : rawResponses;
+
+    if (poll.require_all_dates) {
+      const answered = responses && typeof responses === "object" ? new Set(Object.keys(responses)) : new Set();
+      const missing = poll.options.some((option) => !answered.has(option.id));
+      if (missing) {
+        return res
+          .status(400)
+          .json({ error: "Please respond to every date (Accepted, Maybe, or Can't make it)." });
+      }
+    }
+
     let result;
 
     if (poll.require_login) {

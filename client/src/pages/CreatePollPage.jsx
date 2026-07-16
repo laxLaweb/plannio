@@ -63,6 +63,8 @@ export function CreatePollPage() {
   const [view, setView] = useState(draft.view || "calendar");
   const [requireLogin, setRequireLogin] = useState(draft.requireLogin ?? false);
   const [hideVoterNames, setHideVoterNames] = useState(draft.hideVoterNames ?? false);
+  const [allowMaybe, setAllowMaybe] = useState(draft.allowMaybe ?? true);
+  const [requireAllDates, setRequireAllDates] = useState(draft.requireAllDates ?? true);
   const [channels, setChannels] = useState({
     discord: { enabled: false, events: [] },
     slack: { enabled: false, events: [] },
@@ -86,9 +88,24 @@ export function CreatePollPage() {
       view,
       requireLogin,
       hideVoterNames,
+      allowMaybe,
+      requireAllDates,
     };
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
-  }, [title, description, sameTime, globalStartTime, globalEndTime, globalAllDay, dates, view, requireLogin, hideVoterNames]);
+  }, [
+    title,
+    description,
+    sameTime,
+    globalStartTime,
+    globalEndTime,
+    globalAllDay,
+    dates,
+    view,
+    requireLogin,
+    hideVoterNames,
+    allowMaybe,
+    requireAllDates,
+  ]);
 
   if (loading) {
     return (
@@ -194,6 +211,8 @@ export function CreatePollPage() {
         expectedResponses: channels.expectedResponses ?? undefined,
         requireLogin,
         hideVoterNames,
+        allowMaybe,
+        requireAllDates,
       });
       sessionStorage.removeItem(DRAFT_KEY);
       navigate(`/polls/${poll.id}`);
@@ -267,6 +286,42 @@ export function CreatePollPage() {
                 <span className="block text-xs text-muted-foreground">
                   Participants see how many can attend each date, but not who. You still see names
                   on your results page.
+                </span>
+              </span>
+            </label>
+
+            <label className="mt-4 flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={allowMaybe}
+                onChange={(e) => setAllowMaybe(e.target.checked)}
+                className="mt-0.5 h-5 w-5 rounded-md accent-[oklch(0.557_0.224_277)]"
+              />
+              <span>
+                <span className="text-sm font-semibold text-foreground">
+                  Allow "Maybe" responses
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  Let participants mark a date as "Maybe" instead of only Accepted or Can&apos;t make
+                  it.
+                </span>
+              </span>
+            </label>
+
+            <label className="mt-4 flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={requireAllDates}
+                onChange={(e) => setRequireAllDates(e.target.checked)}
+                className="mt-0.5 h-5 w-5 rounded-md accent-[oklch(0.557_0.224_277)]"
+              />
+              <span>
+                <span className="text-sm font-semibold text-foreground">
+                  Require a response for every date
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  Participants must mark Accepted, Maybe, or Can&apos;t make it for each date. Turn
+                  off to let them respond to just the dates that work for them.
                 </span>
               </span>
             </label>

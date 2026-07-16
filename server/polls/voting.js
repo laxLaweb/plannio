@@ -31,7 +31,7 @@ function sanitizeResponses(raw) {
 async function getPollBySlug(slug) {
   const pollResult = await query(
     `SELECT p.id, p.title, p.slug, p.description, p.created_at, p.expected_responses, p.require_login,
-            p.hide_voter_names, p.locked_option_id
+            p.hide_voter_names, p.allow_maybe, p.require_all_dates, p.locked_option_id
      FROM polls p
      WHERE p.slug = $1`,
     [slug],

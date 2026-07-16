@@ -36,6 +36,8 @@ router.post("/", async (req, res) => {
       expectedResponses,
       requireLogin,
       hideVoterNames,
+      allowMaybe,
+      requireAllDates,
     } = req.body;
 
     // Webhook-URL'erne kommer fra sessionen (OAuth-flowet), ikke fra klienten.
@@ -73,6 +75,8 @@ router.post("/", async (req, res) => {
       expectedResponses,
       requireLogin,
       hideVoterNames,
+      allowMaybe,
+      requireAllDates,
       voterName: req.session.user?.displayName || "Creator",
     });
 

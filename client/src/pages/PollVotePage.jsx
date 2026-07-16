@@ -152,6 +152,13 @@ export function PollVotePage() {
     setSaving(true);
     setError(null);
     try {
+      if (poll.require_all_dates) {
+        const missing = poll.options.some((opt) => !responses[opt.id]);
+        if (missing) {
+          throw new Error("Please respond to every date (Accepted, Maybe, or Can't make it).");
+        }
+      }
+
       const payload = { responses };
       if (!requiresLogin) {
         if (!voterName.trim()) {
@@ -366,7 +373,9 @@ export function PollVotePage() {
           </h2>
           {canVote && (
             <p className="mt-1 text-xs text-muted-foreground">
-              Mark accepted, maybe, or can&apos;t make it for each date
+              {poll.require_all_dates
+                ? "Mark accepted, maybe, or can't make it for every date"
+                : "Mark accepted, maybe, or can't make it for the dates that work for you"}
               {!requiresLogin && responseMode === "edit" ? " for the person above" : ""}.
             </p>
           )}
@@ -374,6 +383,10 @@ export function PollVotePage() {
           <div className="mt-4 space-y-2.5">
             {poll.options.map((opt) => {
               const myStatus = responses[opt.id];
+              const statusChoices =
+                poll.allow_maybe === false
+                  ? STATUS_ORDER.filter((status) => status !== "maybe")
+                  : STATUS_ORDER;
               const pct = totalVoters ? Math.round((opt.vote_count / totalVoters) * 100) : 0;
               const isWinner = isLocked && opt.id === poll.locked_option_id;
               const rowActiveClasses = myStatus ? STATUS_META[myStatus].rowActiveClasses : null;
@@ -422,7 +435,7 @@ export function PollVotePage() {
 
                   {canVote && (
                     <div className="mt-3 flex gap-2">
-                      {STATUS_ORDER.map((status) => {
+                      {statusChoices.map((status) => {
                         const meta = STATUS_META[status];
                         const Icon = meta.icon;
                         const active = myStatus === status;
@@ -447,6 +460,10 @@ export function PollVotePage() {
                         );
                       })}
                     </div>
+                  )}
+
+                  {canVote && poll.require_all_dates && !myStatus && (
+                    <p className="mt-2 text-[11px] font-medium text-amber-600">Response required</p>
                   )}
 
                   <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-secondary">

@@ -144,6 +144,8 @@ async function createPoll({
   expectedResponses,
   requireLogin = false,
   hideVoterNames = false,
+  allowMaybe = true,
+  requireAllDates = true,
   voterName,
 }) {
   const cleanTitle = String(title || "").trim();
@@ -159,6 +161,8 @@ async function createPoll({
   const cleanExpected = normalizeExpected(expectedResponses);
   const cleanRequireLogin = requireLogin === true;
   const cleanHideVoterNames = hideVoterNames === true;
+  const cleanAllowMaybe = allowMaybe !== false;
+  const cleanRequireAllDates = requireAllDates !== false;
 
   const wantsReminders =
     cleanDiscord?.events.includes("reminder") || cleanSlack?.events.includes("reminder");
@@ -173,10 +177,12 @@ async function createPoll({
     const pollResult = await client.query(
       `INSERT INTO polls
          (user_id, title, slug, description, expected_responses, require_login, hide_voter_names,
+          allow_maybe, require_all_dates,
           discord_webhook_url, discord_webhook_id, discord_channel_id, discord_guild_id, discord_events,
           slack_webhook_url, slack_channel_name, slack_team_id, slack_events)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-       RETURNING id, user_id, title, slug, description, created_at, require_login, hide_voter_names`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+       RETURNING id, user_id, title, slug, description, created_at, require_login, hide_voter_names,
+                 allow_maybe, require_all_dates`,
       [
         userId,
         cleanTitle,
@@ -185,6 +191,8 @@ async function createPoll({
         cleanExpected,
         cleanRequireLogin,
         cleanHideVoterNames,
+        cleanAllowMaybe,
+        cleanRequireAllDates,
         cleanDiscord?.webhookUrl || null,
         cleanDiscord?.webhookId || null,
         cleanDiscord?.channelId || null,
@@ -306,7 +314,8 @@ async function countResponders(pollId) {
 async function getPollByIdForUser(pollId, userId) {
   const pollResult = await query(
     `SELECT id, title, slug, description, created_at,
-            expected_responses, require_login, hide_voter_names, locked_option_id,
+            expected_responses, require_login, hide_voter_names, allow_maybe, require_all_dates,
+            locked_option_id,
             discord_events, slack_events,
             (discord_webhook_url IS NOT NULL) AS discord_connected,
             (slack_webhook_url IS NOT NULL) AS slack_connected
