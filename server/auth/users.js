@@ -133,15 +133,15 @@ async function upsertOAuthUser({
     return updateUserProfile(byProvider.id, {
       displayName,
       email: currentUserId ? null : email,
-      avatarUrl,
+      avatarUrl: currentUserId ? null : avatarUrl,
     });
   }
 
   // 2. Brugeren er allerede logget ind → knyt den nye login-metode til samme konto
   if (currentUserId) {
     await linkIdentity(currentUserId, provider, providerUserId);
-    // Bevar den eksisterende email — OAuth-email kan afvige fra kontoens email.
-    return updateUserProfile(currentUserId, { displayName, avatarUrl });
+    // Bevar profil (navn, email, avatar) — linking må ikke overskrive eksisterende data.
+    return findUserById(currentUserId);
   }
 
   // 3. Findes en konto med samme email? → flet den nye login-metode ind i den
