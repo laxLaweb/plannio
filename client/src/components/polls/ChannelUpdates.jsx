@@ -176,11 +176,6 @@ export function ChannelUpdates({ onChange, earliestDate }) {
   const remindersTouchedRef = useRef(false);
 
   useEffect(() => {
-    if (remindersTouchedRef.current) return;
-    setReminders(computeDefaultReminders(earliestDate));
-  }, [earliestDate]);
-
-  useEffect(() => {
     const parsed = Number.parseInt(expected, 10);
     const reminderIso = events.includes("reminder")
       ? reminders.filter(Boolean).map((value) => new Date(value).toISOString())
