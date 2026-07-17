@@ -30,7 +30,7 @@ function makeRow(patch = {}) {
     isRange: false,
     startTime: "",
     endTime: "",
-    allDay: false,
+    allDay: true,
     ...patch,
   };
 }
@@ -58,7 +58,7 @@ export function CreatePollPage() {
   const [sameTime, setSameTime] = useState(draft.sameTime ?? true);
   const [globalStartTime, setGlobalStartTime] = useState(draft.globalStartTime || "");
   const [globalEndTime, setGlobalEndTime] = useState(draft.globalEndTime || "");
-  const [globalAllDay, setGlobalAllDay] = useState(draft.globalAllDay ?? false);
+  const [globalAllDay, setGlobalAllDay] = useState(draft.globalAllDay ?? true);
   const [dates, setDates] = useState(draft.dates || []);
   const [view, setView] = useState(draft.view || "calendar");
   const [requireLogin, setRequireLogin] = useState(draft.requireLogin ?? false);
