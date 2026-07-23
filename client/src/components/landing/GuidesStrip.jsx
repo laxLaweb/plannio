@@ -4,19 +4,19 @@ import { Reveal, SectionHeading } from "./Reveal";
 
 const guides = [
   {
+    label: "Availability poll",
+    href: "/guides/availability-poll",
+    desc: "Find when everyone in a group is free",
+  },
+  {
     label: "Discord scheduling",
     href: "/discord-scheduling",
     desc: "Channel updates without a bot",
   },
   {
-    label: "Slack scheduling",
-    href: "/slack-scheduling",
-    desc: "Meeting polls in your workspace",
-  },
-  {
-    label: "Stop chasing replies",
-    href: "/guides/stop-chasing-replies",
-    desc: "One link instead of endless threads",
+    label: "Vote without account",
+    href: "/guides/vote-without-account",
+    desc: "No signup required for voters",
   },
 ];
 
@@ -49,6 +49,17 @@ export function GuidesStrip() {
             </Reveal>
           ))}
         </div>
+        <Reveal delay={0.15}>
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            <Link to="/guides" className="font-semibold text-primary hover:underline">
+              Browse all guides
+            </Link>
+            {" · "}
+            <Link to="/use-cases" className="font-semibold text-primary hover:underline">
+              See use cases
+            </Link>
+          </p>
+        </Reveal>
       </div>
     </section>
   );

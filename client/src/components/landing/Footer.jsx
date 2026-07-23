@@ -18,8 +18,12 @@ const groups = [
   {
     title: "Guides",
     links: [
+      { label: "All guides", href: "/guides", router: true },
       { label: "Discord scheduling", href: "/discord-scheduling", router: true },
       { label: "Slack scheduling", href: "/slack-scheduling", router: true },
+      { label: "Availability poll", href: "/guides/availability-poll", router: true },
+      { label: "Vote without account", href: "/guides/vote-without-account", router: true },
+      { label: "Expected responses", href: "/guides/expected-responses", router: true },
       { label: "Without a Discord bot", href: "/guides/discord-poll-without-bot", router: true },
       { label: "Stop chasing replies", href: "/guides/stop-chasing-replies", router: true },
       { label: "Date ranges", href: "/guides/date-ranges", router: true },
@@ -28,6 +32,9 @@ const groups = [
   {
     title: "Use cases",
     links: [
+      { label: "All use cases", href: "/use-cases", router: true },
+      { label: "Remote team", href: "/use-cases/remote-team", router: true },
+      { label: "Raid night", href: "/use-cases/raid-night", router: true },
       { label: "Weekend trip", href: "/use-cases/weekend-trip", router: true },
       { label: "Team meetings", href: "/use-cases/team-meetings", router: true },
       { label: "Game night", href: "/use-cases/game-night", router: true },

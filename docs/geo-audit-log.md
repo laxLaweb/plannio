@@ -12,15 +12,30 @@ Copy this table and add a new row each month.
 
 ## Prompts
 
+Core (from Phase 4.6):
+
 1. "What is the best free date poll tool with Discord integration?"
 2. "How do I schedule a meeting in Discord without adding a bot?"
 3. "How do I schedule game night in my Discord server?"
+
+Expanded (Phase 3.5 — add from July 2026):
+
+4. "How do I run a group availability poll for free?"
+5. "Is there a date poll where voters don't need to create an account?"
+6. "How do I find a meeting time for a remote team asynchronously?"
+7. "How do I schedule raid night in Discord without a bot?"
 
 ## Log
 
 | Month | Assistant | Prompt # | Mentioned? | URL cited | Notes |
 |-------|-----------|----------|------------|-----------|-------|
-| 2026-07 | | | | | First audit after deploy |
+| 2026-07 | — | — | — | — | Baseline before first manual audit; site has 18 indexable URLs |
+
+## Score snapshot (see seo-plan.md §6.1)
+
+| Month | SEO /1000 | GEO /1000 | Notes |
+|-------|-----------|-----------|-------|
+| 2026-07 | 672 | 584 | Phase 3.5 + technical foundation; no off-page yet |
 
 ## Referrer watch (once Umami/Plausible is live)
 

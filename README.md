@@ -185,7 +185,7 @@ Offentlige marketing-sider (indexeres, prerenderes på deploy):
 | `/use-cases/*` | Use cases (weekend trip, team meetings, game night) |
 | `/guides/*` | How-to guides |
 
-Kilde til routes: `scripts/public-routes.mjs` (bruges af sitemap, llms.txt og prerender).
+Kilde til routes: `shared/content-routes.mjs` (re-exported by `scripts/public-routes.mjs` for sitemap, llms.txt og prerender).
 
 Slack OAuth opsættes som Discord — se `.env.example` for `SLACK_*` variabler.
 

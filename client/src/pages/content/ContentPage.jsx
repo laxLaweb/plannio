@@ -12,9 +12,9 @@ import { absoluteUrl } from "@/lib/site";
 function getCategoryPath(category, pagePath) {
   switch (category) {
     case "Guides":
-      return "/guides/discord-poll-without-bot";
+      return pagePath === "/guides" ? null : "/guides";
     case "Use cases":
-      return "/use-cases/weekend-trip";
+      return pagePath === "/use-cases" ? null : "/use-cases";
     case "Legal":
       // /privacy is the legal hub; skip the extra crumb on that page itself.
       return pagePath === "/privacy" ? null : "/privacy";

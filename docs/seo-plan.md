@@ -19,10 +19,10 @@ order — Phase 1 is a prerequisite for everything else.
 |-------|--------|-------|
 | Phase 1 — Technical SEO | **Done** | Lighthouse SEO 100/100; mobile perf 73 — re-measure after next deploy |
 | Phase 2 — On-page landing | **Done** | Guides strip, full a11y audit, breadcrumbs on content pages |
-| Phase 3 — Content pages | **Done** | All 8 pages live in codebase |
+| Phase 3 — Content pages | **Expanded** | 13 content pages + 2 hub pages (July 2026 keyword expansion) |
 | Phase 4 — GEO | **Mostly done** | prerender wired to heroku-postbuild; verify after deploy |
 | Phase 5 — Off-page | **Not started** | Requires user (Appendix A + directory listings) |
-| Phase 6 — Measurement | **Prepared in code** | `Analytics.jsx` wired; waiting on user script URL + Search Console |
+| Phase 6 — Measurement | **Prepared** | Scorecard §6.1; SEO 672/1000, GEO 584/1000 (Jul 2026) |
 | Appendix A | **Not started** | User has not created Google/Bing/analytics accounts yet |
 
 **Legend:** `- [x]` = implemented in repo · `- [ ]` = not done or not verified
@@ -61,7 +61,8 @@ order — Phase 1 is a prerequisite for everything else.
       a trailing-slash 301)
 - [x] Self-hosted Inter font; app pages lazy-loaded in `App.jsx`; vendor chunks
       split in `vite.config.js` (react / motion)
-- [x] Content routes: 2 integration guides, 3 use cases, 3 how-to guides (see Phase 3)
+- [x] Content routes: 2 integration guides, 6 how-to guides, 5 use cases, 2 hub
+      pages (`/guides`, `/use-cases`) — see Phase 3 and 3.5
 - [x] Prerender verified in production (Heroku build log + live HTML checked July 2026)
 - [x] Node pinned to `24.x` in root `package.json` (Heroku resolved 24.18.0)
 - [ ] Google Search Console / Bing / analytics not set up (Appendix A)
@@ -425,6 +426,70 @@ Structure for how-to pages:
 
 ---
 
+## Phase 3.5 — Keyword expansion (July 2026) — [x]
+
+**Canonical route catalog:** `shared/content-routes.mjs` (imported by
+`scripts/public-routes.mjs`, sitemap/llms generators, prerender, and hub pages).
+Each route may include a `targetKeywords` array for documentation — not rendered
+on the site.
+
+### Keyword tiers
+
+| Tier | Intent | Examples |
+|------|--------|----------|
+| **Core** | Product category | date poll, free date poll, group date poll, availability poll |
+| **Integration** | Discord/Slack differentiator | discord scheduling poll, slack meeting poll, discord poll without bot, discord webhook scheduling |
+| **Feature** | Unique product capabilities | vote without account, expected responses, scheduling poll reminder, multi-day date poll |
+| **Use case** | Scenario-based long-tail | remote team scheduling, raid night discord, schedule game night discord, plan weekend trip |
+| **GEO prompts** | AI assistant queries (track in `docs/geo-audit-log.md`) | "best free date poll tool with Discord integration", "how to schedule a meeting in Discord without a bot" |
+
+**Do not target** (product mismatch or out of scope): recurring meeting scheduler,
+timezone/world-clock poll, Calendly-style 1:1 booking, competitor comparison pages
+(`/vs/doodle`, etc.).
+
+### New pages shipped — [x]
+
+| Path | Target keywords | Title tag |
+|------|-----------------|-----------|
+| `/guides` | date poll guide, group scheduling how-to | "Guides for group date polls" (hub) |
+| `/use-cases` | group scheduling use cases | "Use cases for group date polls" (hub) |
+| `/guides/availability-poll` | availability poll, group availability poll, find when everyone is free | "How to run a group availability poll" |
+| `/guides/vote-without-account` | poll without signup, vote without account, no login date poll | "Let people vote without creating an account" |
+| `/guides/expected-responses` | track poll responses, know when everyone voted, scheduling poll reminder | "Track expected responses on a date poll" |
+| `/use-cases/remote-team` | remote team scheduling, async team meeting poll, distributed team find time | "Find meeting times for a remote team" |
+| `/use-cases/raid-night` | discord raid scheduling, schedule raid night discord, mmo guild scheduling | "Schedule raid night in your Discord server" |
+
+### Existing pages — keyword map (unchanged URLs)
+
+| Path | Target keywords |
+|------|-----------------|
+| `/` | date poll, free date poll, group date poll, group scheduling tool |
+| `/discord-scheduling` | discord scheduling poll, discord date poll, schedule event in Discord |
+| `/slack-scheduling` | slack meeting poll, slack scheduling tool, slack date poll |
+| `/guides/discord-poll-without-bot` | discord poll without bot, discord webhook scheduling |
+| `/guides/stop-chasing-replies` | find time everyone can meet, group scheduling, find common time |
+| `/guides/date-ranges` | multi-day date poll, weekend poll, Friday to Sunday poll |
+| `/use-cases/weekend-trip` | plan weekend trip friends, group date poll trip |
+| `/use-cases/team-meetings` | find meeting time team poll free, team scheduling poll |
+| `/use-cases/game-night` | schedule game night discord, discord community event |
+
+### Future candidates (not yet built)
+
+Ship only when there is a distinct query and ≥600 words of unique content:
+
+| Path idea | Target keywords |
+|-----------|-----------------|
+| `/use-cases/friend-group` | plan hangout with friends, friend group scheduling |
+| `/use-cases/birthday-party` | birthday party date poll |
+| `/guides/find-common-time` | find a time everyone can meet (stronger standalone angle) |
+| `/guides/discord-event-planning` | plan discord event, discord community event scheduling |
+
+Acceptance: all new routes in `shared/content-routes.mjs`, registered in
+`App.jsx`, linked from footer + hub pages, regenerated sitemap/llms.txt via
+`npm run generate-seo`, prerender includes all `PRERENDER_PATHS`.
+
+---
+
 ## Phase 4 — GEO (Generative Engine Optimization) — [ ] mostly done
 
 GEO = getting Plannio recommended and cited when people ask ChatGPT,
@@ -439,7 +504,7 @@ presence), but the tasks below are GEO-specific.
 JavaScript. Prerendering saves static HTML so they see full page content.
 
 1. `puppeteer` (local) + `puppeteer-core` + `@sparticuz/chromium` (Linux/Heroku). **[x]**
-2. `scripts/prerender.mjs` — all 9 public routes. **[x]**
+2. `scripts/prerender.mjs` — all public routes in `PRERENDER_PATHS`. **[x]**
 3. `heroku-postbuild`: `npm run build && npm run prerender`. **[x]**
    Set `SKIP_PRERENDER=1` to skip. Build already runs `optimize-og` first.
 4. Server catch-all serves prerendered HTML. **[x]**
@@ -475,7 +540,7 @@ fetch. Content:
 
 ```
 # Plannio
-… (see `client/public/llms.txt` — lists all 8 content pages) …
+… (see `client/public/llms.txt` — lists all indexable pages from `shared/content-routes.mjs`) …
 ```
 
 Keep it updated whenever Phase-3 pages ship (same commit). **[x] All pages listed.**
@@ -524,10 +589,9 @@ checklist after Phase 3 starts:
 
 1. [ ] Google Search Console and Bing Webmaster Tools — see Appendix A for the
    full from-scratch setup, since no accounts exist yet.
-2. [ ] Directory listings (free, high-value backlinks): AlternativeTo (list as a
-   date-poll / scheduling tool — do not frame as a competitor to others),
-   Product Hunt launch, Slack App Directory, `awesome-` GitHub lists for
-   Discord tools, ToolFinder, SaaSHub.
+2. [ ] Directory listings (free, high-value backlinks): AlternativeTo (copy in
+   `docs/alternativeto-listing.md`), Product Hunt launch, Slack App Directory,
+   `awesome-` GitHub lists for Discord tools, ToolFinder, SaaSHub.
 3. [ ] Community presence: answer relevant questions on r/discordapp, r/Slack,
    r/productivity — link only when genuinely on-topic.
 4. [ ] Ask early users for reviews on Capterra/G2 once there is traffic.
@@ -549,7 +613,83 @@ checklist after Phase 3 starts:
    query, Plannio mentioned in at least one of the monthly AI-assistant
    audits.
 
-## Execution order summary
+### 6.1 SEO & GEO scorecard (1–1000) — [x]
+
+Re-score monthly after deploys, GSC data, and GEO audits. **Foundation**
+(measurable in code) and **market** (rankings, citations) are scored
+separately — a site can score high on foundation while market score stays
+low for months on a new domain.
+
+**Formula:** report SEO and GEO separately; optional combined average.
+
+#### SEO score (max 1000)
+
+| Category | Max | Jul 2026 | What moves it |
+|----------|-----|----------|---------------|
+| Technical foundation | 150 | 142 | Lighthouse SEO, robots/sitemap, HTTPS, prerender, headers |
+| On-page content | 200 | 158 | Content pages, hubs, unique metadata, FAQ copy |
+| Keyword coverage | 150 | 118 | Phase 3.5 map; add pages for tier-4 only when ready |
+| Internal linking | 75 | 68 | Footer, hubs, GuidesStrip, sibling links |
+| Structured data | 75 | 62 | FAQ, breadcrumbs, Organization; fix prerender head leaks |
+| Performance (CWV) | 100 | 78 | Mobile Lighthouse; immutable asset caching |
+| Indexation & GSC | 100 | 32 | Green sitemap, crawl stats, impressions per page |
+| Off-page / authority | 150 | 18 | Directories, backlinks, community citations |
+| **SEO total** | **1000** | **672** | |
+
+#### GEO score (max 1000)
+
+| Category | Max | Jul 2026 | What moves it |
+|----------|-----|----------|---------------|
+| AI crawlability | 150 | 145 | Prerender, explicit bot Allow in robots.txt |
+| llms.txt & entity | 150 | 135 | llms.txt freshness, consistent definition sentence |
+| Quotable content | 200 | 165 | Direct answers, FAQ JSON-LD, dated pages |
+| Structured discoverability | 100 | 85 | Organization schema, hubs, llms.txt link in `<head>` |
+| Third-party corroboration | 200 | 15 | AlternativeTo, Reddit, Product Hunt, Slack directory |
+| GEO measurement | 100 | 30 | `docs/geo-audit-log.md`, AI referrer segments in analytics |
+| Actual AI visibility | 100 | 15 | Mentioned/cited in ChatGPT, Perplexity, Gemini audits |
+| **GEO total** | **1000** | **584** | |
+
+#### Combined snapshot (Jul 2026)
+
+| Metric | Score |
+|--------|-------|
+| SEO | **672 / 1000** |
+| GEO | **584 / 1000** |
+| Average | **628 / 1000** |
+| Foundation (tech + content + crawl) | ~780 / 1000 |
+| Market (indexation + off-page + citations) | ~180 / 1000 |
+
+**Target after 6 months** (with Phase 5 done): SEO **750–820**, GEO **680–760**.
+
+Log monthly updates in `docs/geo-audit-log.md` (referrer table) and add a
+row below when re-scoring:
+
+| Month | SEO | GEO | Notes |
+|-------|-----|-----|-------|
+| 2026-07 | 672 | 584 | 18 URLs, Phase 3.5 shipped; GSC sitemap pending; no off-page |
+
+#### Quick wins checklist (revisit each month)
+
+**In repo (executor):**
+
+- [x] Phase 3.5 keyword pages + hub routes (`shared/content-routes.mjs`)
+- [x] Breadcrumb JSON-LD fix (category URLs or omit)
+- [x] Prerender: fresh browser page per route (no head-tag leak)
+- [x] Organization JSON-LD on all routes (`SiteJsonLd.jsx`)
+- [x] llms.txt GEO prompt section
+- [ ] Fix any remaining duplicate `<title>`/canonical in prerender output (verify post-deploy)
+- [ ] Organization `sameAs` when social/profile URLs exist
+
+**User (Appendix A + Phase 5):**
+
+- [ ] Deploy latest + resubmit sitemap in GSC
+- [ ] Import Bing Webmaster from GSC
+- [ ] URL inspection → request indexing for 3–5 new pages
+- [ ] AlternativeTo listing (use definition sentence from Phase 4.4)
+- [ ] First monthly GEO audit (`docs/geo-audit-log.md`)
+- [ ] Umami/Plausible live for AI referrer tracking
+
+---
 
 1. [x] Phase 1 tasks 1.1–1.7; [ ] 1.8 Lighthouse (after deploy on Node 20)
 2. [x] Phase 2 — done (a11y, breadcrumbs, schema on content pages)
@@ -620,10 +760,10 @@ same flow, script tag from Phase 6.
 ### 5. Accounts for the Phase 5 checklist (do when content pages exist)
 
 - AlternativeTo: https://alternativeto.net → register → "Add application" →
-  list Plannio under Scheduling / Productivity with tags like "date poll",
-  "Discord", "Slack". Describe the product on its own merits — do not list
-  it as an alternative to a named competitor unless the platform requires
-  picking a category app.
+  paste from `docs/alternativeto-listing.md` (tags: date poll, Discord, Slack,
+  scheduling). Describe the product on its own merits — do not list it as an
+  alternative to a named competitor unless the platform requires picking a
+  category app.
 - Product Hunt: https://www.producthunt.com → create maker account. Plan the
   launch for when integration guide pages + OG image are live.
 - Slack App Directory: requires the Slack app to be publicly distributed —

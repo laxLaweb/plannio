@@ -95,10 +95,15 @@ async function main() {
   try {
     await waitForServer(`http://127.0.0.1:${port}/`);
     browser = await launchBrowser();
-    const page = await browser.newPage();
 
+    // Fresh page per route so React-hoisted <head> tags from route A do not leak into route B.
     for (const route of PRERENDER_PATHS) {
-      await prerenderRoute(page, route);
+      const page = await browser.newPage();
+      try {
+        await prerenderRoute(page, route);
+      } finally {
+        await page.close();
+      }
     }
   } finally {
     if (browser) await browser.close().catch(() => {});

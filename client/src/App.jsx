@@ -6,6 +6,7 @@ import { ConsentProvider } from "./context/ConsentContext";
 import { LandingPage } from "./components/landing/LandingPage";
 import { Analytics, GoogleAnalyticsPageView } from "./components/Analytics";
 import { CookieBanner } from "./components/CookieBanner";
+import { SiteJsonLd } from "./components/SiteJsonLd";
 
 const LoginPage = lazy(() =>
   import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })),
@@ -72,11 +73,47 @@ const DateRangesPage = lazy(() =>
     default: m.DateRangesPage,
   })),
 );
+const AvailabilityPollPage = lazy(() =>
+  import("./pages/content/guides/AvailabilityPollPage").then((m) => ({
+    default: m.AvailabilityPollPage,
+  })),
+);
+const VoteWithoutAccountPage = lazy(() =>
+  import("./pages/content/guides/VoteWithoutAccountPage").then((m) => ({
+    default: m.VoteWithoutAccountPage,
+  })),
+);
+const ExpectedResponsesPage = lazy(() =>
+  import("./pages/content/guides/ExpectedResponsesPage").then((m) => ({
+    default: m.ExpectedResponsesPage,
+  })),
+);
+const RemoteTeamPage = lazy(() =>
+  import("./pages/content/use-cases/RemoteTeamPage").then((m) => ({
+    default: m.RemoteTeamPage,
+  })),
+);
+const RaidNightPage = lazy(() =>
+  import("./pages/content/use-cases/RaidNightPage").then((m) => ({
+    default: m.RaidNightPage,
+  })),
+);
+const GuidesHubPage = lazy(() =>
+  import("./pages/content/hubs/GuidesHubPage").then((m) => ({
+    default: m.GuidesHubPage,
+  })),
+);
+const UseCasesHubPage = lazy(() =>
+  import("./pages/content/hubs/UseCasesHubPage").then((m) => ({
+    default: m.UseCasesHubPage,
+  })),
+);
 
 function App() {
   return (
     <BrowserRouter>
       <ConsentProvider>
+        <SiteJsonLd />
         <Analytics />
         <GoogleAnalyticsPageView />
         <AuthProvider>
@@ -86,12 +123,19 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/discord-scheduling" element={<DiscordSchedulingPage />} />
                 <Route path="/slack-scheduling" element={<SlackSchedulingPage />} />
-                <Route path="/use-cases/weekend-trip" element={<WeekendTripPage />} />
-                <Route path="/use-cases/team-meetings" element={<TeamMeetingsPage />} />
-                <Route path="/use-cases/game-night" element={<GameNightPage />} />
+                <Route path="/guides" element={<GuidesHubPage />} />
+                <Route path="/guides/availability-poll" element={<AvailabilityPollPage />} />
+                <Route path="/guides/vote-without-account" element={<VoteWithoutAccountPage />} />
+                <Route path="/guides/expected-responses" element={<ExpectedResponsesPage />} />
                 <Route path="/guides/discord-poll-without-bot" element={<DiscordPollWithoutBotPage />} />
                 <Route path="/guides/stop-chasing-replies" element={<StopChasingRepliesPage />} />
                 <Route path="/guides/date-ranges" element={<DateRangesPage />} />
+                <Route path="/use-cases" element={<UseCasesHubPage />} />
+                <Route path="/use-cases/remote-team" element={<RemoteTeamPage />} />
+                <Route path="/use-cases/raid-night" element={<RaidNightPage />} />
+                <Route path="/use-cases/weekend-trip" element={<WeekendTripPage />} />
+                <Route path="/use-cases/team-meetings" element={<TeamMeetingsPage />} />
+                <Route path="/use-cases/game-night" element={<GameNightPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/login" element={<LoginPage />} />
