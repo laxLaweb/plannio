@@ -7,6 +7,7 @@ import { LandingPage } from "./components/landing/LandingPage";
 import { Analytics, GoogleAnalyticsPageView } from "./components/Analytics";
 import { CookieBanner } from "./components/CookieBanner";
 import { SiteJsonLd } from "./components/SiteJsonLd";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 const LoginPage = lazy(() =>
   import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })),
@@ -112,6 +113,7 @@ const UseCasesHubPage = lazy(() =>
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ConsentProvider>
         <SiteJsonLd />
         <Analytics />
