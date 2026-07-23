@@ -8,10 +8,27 @@ import { PageMeta } from "@/components/PageMeta";
 import { JsonLd } from "@/components/JsonLd";
 import { absoluteUrl } from "@/lib/site";
 
+/** Hub path for breadcrumb categories that have no index page of their own. */
+function getCategoryPath(category, pagePath) {
+  switch (category) {
+    case "Guides":
+      return "/guides/discord-poll-without-bot";
+    case "Use cases":
+      return "/use-cases/weekend-trip";
+    case "Legal":
+      // /privacy is the legal hub; skip the extra crumb on that page itself.
+      return pagePath === "/privacy" ? null : "/privacy";
+    default:
+      // e.g. "Integration guide" — no shared landing page, omit from crumbs.
+      return null;
+  }
+}
+
 function breadcrumbItems(path, title, breadcrumbCategory) {
   const items = [{ label: "Home", path: "/" }];
-  if (breadcrumbCategory) {
-    items.push({ label: breadcrumbCategory });
+  const categoryPath = getCategoryPath(breadcrumbCategory, path);
+  if (breadcrumbCategory && categoryPath) {
+    items.push({ label: breadcrumbCategory, path: categoryPath });
   }
   if (path !== "/") {
     items.push({ label: title, path });
@@ -61,15 +78,12 @@ export function ContentPage({
     () => ({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      // Google kræver "item" (URL) på hvert ListItem — kategorier uden egen side udelades.
-      itemListElement: crumbs
-        .filter((item) => item.path)
-        .map((item, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          name: item.label,
-          item: absoluteUrl(item.path),
-        })),
+      itemListElement: crumbs.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.label,
+        item: absoluteUrl(item.path),
+      })),
     }),
     [crumbs],
   );
