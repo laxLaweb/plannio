@@ -4,6 +4,7 @@ import { Bell, Calendar, CalendarRange, Check, Copy, Lock, Sun, Trash2 } from "l
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
+import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { useAuth } from "@/context/AuthContext";
 import { deletePoll, getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -337,6 +338,7 @@ export function PollDetailPage() {
             <Trash2 className="h-4 w-4" /> {deleting ? "Deleting..." : "Delete poll"}
           </Button>
         </div>
+        <SiteLegalNote className="mt-10" />
       </div>
     </div>
   );

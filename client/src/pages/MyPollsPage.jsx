@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { CreatePollButton } from "@/components/polls/CreatePollButton";
 import { PageMeta } from "@/components/PageMeta";
+import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { useAuth } from "@/context/AuthContext";
 import { listPolls } from "@/lib/api";
 
@@ -127,6 +128,7 @@ export function MyPollsPage() {
             ))}
           </div>
         )}
+        <SiteLegalNote className="mt-10" />
       </div>
     </div>
   );

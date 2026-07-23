@@ -6,6 +6,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { DatePickerCalendar } from "@/components/polls/DatePickerCalendar";
 import { ChannelUpdates } from "@/components/polls/ChannelUpdates";
 import { PageMeta } from "@/components/PageMeta";
+import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { useAuth } from "@/context/AuthContext";
 import { createPoll } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -532,6 +533,7 @@ export function CreatePollPage() {
             </Button>
           </div>
         </form>
+        <SiteLegalNote className="mt-10" />
       </div>
     </div>
   );

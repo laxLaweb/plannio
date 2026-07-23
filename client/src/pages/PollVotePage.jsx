@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
+import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { DiscordIcon, SlackIcon, startDiscordLogin, startSlackLogin } from "@/components/auth/LoginOptions";
 import { useAuth } from "@/context/AuthContext";
 import { getPublicPoll, submitVote } from "@/lib/api";
@@ -540,6 +541,7 @@ export function PollVotePage() {
         >
           <ArrowLeft className="h-4 w-4" /> Back to Plannio
         </Link>
+        <SiteLegalNote className="mt-8" />
       </div>
     </div>
   );

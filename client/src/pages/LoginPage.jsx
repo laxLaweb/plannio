@@ -4,6 +4,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { LoginOptions } from "@/components/auth/LoginOptions";
 import { UserAvatar } from "@/components/auth/UserAvatar";
 import { PageMeta } from "@/components/PageMeta";
+import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { useAuth } from "@/context/AuthContext";
 
 export function LoginPage() {
@@ -31,6 +32,7 @@ export function LoginPage() {
             </Button>
           </div>
         </div>
+        <SiteLegalNote className="mt-8 pb-8" />
       </div>
     );
   }
@@ -71,6 +73,7 @@ export function LoginPage() {
           </Link>
           . We only use your name and profile picture to identify you in Plannio.
         </p>
+        <SiteLegalNote className="mt-4 pb-8" />
       </div>
     </div>
   );

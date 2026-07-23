@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
 import { useConsent } from "@/context/ConsentContext";
+import { formatSiteOwner } from "@/lib/site";
 
 const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
@@ -61,6 +62,9 @@ export function Footer() {
               Find times that work for everyone with date polls, share links, and updates straight to
               Discord and Slack.
             </p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Operated by {formatSiteOwner()}.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-5">
@@ -94,7 +98,9 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
-          <p className="text-sm text-muted-foreground">© 2026 Plannio. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">
+            © 2026 Plannio · {formatSiteOwner()}
+          </p>
           <div className="flex items-center gap-4">
             {GA_ID && (
               <button

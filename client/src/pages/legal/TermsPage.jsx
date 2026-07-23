@@ -27,6 +27,16 @@ export function TermsPage() {
         </ContentLead>
       </div>
 
+      <ContentSection title="Who we are">
+        <p>
+          Plannio is operated by Laweb (CVR 29076561). Questions about these terms? Contact{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-primary hover:underline">
+            {CONTACT_EMAIL}
+          </a>
+          .
+        </p>
+      </ContentSection>
+
       <ContentSection title="The service">
         <p>
           Plannio lets you create date polls, share them with a link, and optionally send updates

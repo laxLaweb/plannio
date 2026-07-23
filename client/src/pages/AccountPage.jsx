@@ -4,6 +4,7 @@ import { Check, Download, Mail, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
+import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { UserAvatar } from "@/components/auth/UserAvatar";
 import {
   DiscordIcon,
@@ -230,6 +231,7 @@ export function AccountPage() {
             <Trash2 className="h-4 w-4" /> {deleting ? "Deleting..." : "Delete my account"}
           </Button>
         </div>
+        <SiteLegalNote className="mt-10" />
       </div>
     </div>
   );

@@ -30,8 +30,8 @@ export function PrivacyPage() {
 
       <ContentSection title="Who is responsible">
         <p>
-          Plannio is the data controller for the personal data described in this policy. For any
-          privacy question or request, contact us at{" "}
+          Plannio is operated by Laweb (CVR 29076561). We are the data controller for the personal
+          data described in this policy. For any privacy question or request, contact us at{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-primary hover:underline">
             {CONTACT_EMAIL}
           </a>
