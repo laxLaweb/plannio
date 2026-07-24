@@ -1,16 +1,44 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { CreatePollButton } from "@/components/polls/CreatePollButton";
 import { PageMeta } from "@/components/PageMeta";
+import { JsonLd } from "@/components/JsonLd";
+import { buildBreadcrumbSchema } from "@/lib/breadcrumbSchema";
 
 export function ContentHubPage({ title, description, path, links }) {
+  const crumbs = useMemo(
+    () => [
+      { label: "Home", path: "/" },
+      { label: title, path },
+    ],
+    [title, path],
+  );
+  const breadcrumbSchema = useMemo(() => buildBreadcrumbSchema(crumbs), [crumbs]);
+  const schemaId = path.replace(/\//g, "-") || "hub";
+
   return (
     <div className="min-h-screen bg-background">
       <PageMeta title={title} description={description} path={path} ogType="website" />
+      <JsonLd id={`breadcrumb-schema${schemaId}`} data={breadcrumbSchema} />
       <Navbar showNavLinks={false} />
       <main className="mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 sm:pt-36">
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
+          <ol className="flex flex-wrap items-center gap-1">
+            <li className="inline-flex items-center gap-1">
+              <Link to="/" className="font-medium transition-colors hover:text-foreground">
+                Home
+              </Link>
+            </li>
+            <li className="inline-flex items-center gap-1">
+              <span className="font-medium text-foreground" aria-current="page">
+                {title}
+              </span>
+            </li>
+          </ol>
+        </nav>
         <p className="text-sm font-semibold uppercase tracking-wider text-primary">Resources</p>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
           {title}

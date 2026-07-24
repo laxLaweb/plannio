@@ -1,16 +1,10 @@
-import { useEffect } from "react";
-
+/** React 19 hoists <script type="application/ld+json"> into document head. */
 export function JsonLd({ id, data }) {
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.id = id;
-    script.text = JSON.stringify(data);
-    document.head.appendChild(script);
-    return () => {
-      document.getElementById(id)?.remove();
-    };
-  }, [id, data]);
-
-  return null;
+  return (
+    <script
+      id={id}
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
 }

@@ -7,6 +7,7 @@ import { CreatePollButton } from "@/components/polls/CreatePollButton";
 import { PageMeta } from "@/components/PageMeta";
 import { JsonLd } from "@/components/JsonLd";
 import { absoluteUrl } from "@/lib/site";
+import { buildBreadcrumbSchema } from "@/lib/breadcrumbSchema";
 
 /** Hub path for breadcrumb categories that have no index page of their own. */
 function getCategoryPath(category, pagePath) {
@@ -74,19 +75,7 @@ export function ContentPage({
     [title, description, path],
   );
 
-  const breadcrumbSchema = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: crumbs.map((item, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: item.label,
-        item: absoluteUrl(item.path),
-      })),
-    }),
-    [crumbs],
-  );
+  const breadcrumbSchema = useMemo(() => buildBreadcrumbSchema(crumbs), [crumbs]);
 
   const schemaId = path.replace(/\//g, "-");
 
