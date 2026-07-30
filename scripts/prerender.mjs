@@ -92,12 +92,23 @@ async function main() {
 
   const server = startServer();
   let browser;
+  const shellHtmlPath = path.join(distDir, "index.html");
+  const shellHtml = fs.readFileSync(shellHtmlPath, "utf8");
+  // Prerender "/" last: sub-routes must bootstrap from the Vite shell, not the
+  // already-prerendered homepage (otherwise React hoists duplicate <title>/canonical).
+  const routes = [
+    ...PRERENDER_PATHS.filter((route) => route !== "/"),
+    "/",
+  ];
   try {
     await waitForServer(`http://127.0.0.1:${port}/`);
     browser = await launchBrowser();
 
     // Fresh page per route so React-hoisted <head> tags from route A do not leak into route B.
-    for (const route of PRERENDER_PATHS) {
+    for (const route of routes) {
+      if (route !== "/") {
+        fs.writeFileSync(shellHtmlPath, shellHtml, "utf8");
+      }
       const page = await browser.newPage();
       try {
         await prerenderRoute(page, route);

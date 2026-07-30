@@ -20,3 +20,4 @@ User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://plannio.eu/sitemap.xml
+Sitemap: https://plannio.eu/sitemap_index.xml

@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
 import { SiteLegalNote } from "@/components/SiteLegalNote";
-import { DiscordIcon, SlackIcon, startDiscordLogin, startSlackLogin } from "@/components/auth/LoginOptions";
+import { LoginOptions } from "@/components/auth/LoginOptions";
 import { useAuth } from "@/context/AuthContext";
 import { getPublicPoll, submitVote } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -255,32 +255,19 @@ export function PollVotePage() {
         )}
 
         {showLoginGate && (
-          <div className="mt-8 rounded-3xl border border-border bg-card p-8 text-center shadow-card">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[#5865F2]/10 text-[#5865F2]">
-              <DiscordIcon />
+          <div className="mt-8 rounded-3xl border border-border bg-card p-8 shadow-card">
+            <div className="text-center">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+                <Lock className="h-6 w-6" />
+              </div>
+              <h2 className="mt-4 text-lg font-bold text-foreground">Sign in to vote</h2>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                The creator requires login. Sign in with Discord, Slack, or your email and password to
+                mark which dates work for you.
+              </p>
             </div>
-            <h2 className="mt-4 text-lg font-bold text-foreground">Sign in to vote</h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              The creator requires login. Sign in with Discord or Slack to mark which dates work for
-              you.
-            </p>
-            <div className="mt-6 space-y-3">
-              <button
-                type="button"
-                onClick={() => startDiscordLogin(`/p/${slug}`)}
-                className="inline-flex w-full items-center justify-center gap-3 rounded-xl bg-[#5865F2] px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-[#4752C4]"
-              >
-                <DiscordIcon />
-                Continue with Discord
-              </button>
-              <button
-                type="button"
-                onClick={() => startSlackLogin(`/p/${slug}`)}
-                className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-5 py-3.5 text-sm font-semibold text-foreground shadow-soft transition-all hover:-translate-y-0.5 hover:bg-secondary"
-              >
-                <SlackIcon />
-                Continue with Slack
-              </button>
+            <div className="mt-6">
+              <LoginOptions redirectTo={`/p/${slug}`} />
             </div>
           </div>
         )}

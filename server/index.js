@@ -20,7 +20,16 @@ const isProduction = process.env.NODE_ENV === "production";
 
 app.set("trust proxy", 1);
 
-app.use(compression());
+// Crawler-facing files are served uncompressed: they are a few KB at most, and
+// content-encoding negotiation is one less thing that can break a sitemap fetch.
+const UNCOMPRESSED_PATHS = new Set(["/robots.txt", "/sitemap.xml", "/sitemap_index.xml"]);
+
+app.use(
+  compression({
+    filter: (req, res) =>
+      !UNCOMPRESSED_PATHS.has(req.path) && compression.filter(req, res),
+  }),
+);
 
 app.use(
   cors({
@@ -72,6 +81,11 @@ if (isProduction) {
       ].join("; "),
     );
     next();
+  });
+
+  // Avoid indexing /index.html as a duplicate of /.
+  app.get("/index.html", (_req, res) => {
+    res.redirect(301, "/");
   });
 
   // redirect: false stops express.static from 301-redirecting /discord-scheduling
