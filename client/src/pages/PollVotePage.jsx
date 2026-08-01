@@ -1,16 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  Calendar,
-  CalendarRange,
-  Check,
-  HelpCircle,
-  Lock,
-  Sun,
-  Users,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Calendar, CalendarRange, Check, Lock, Sun, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
@@ -19,31 +9,26 @@ import { LoginOptions } from "@/components/auth/LoginOptions";
 import { useAuth } from "@/context/AuthContext";
 import { getPublicPoll, submitVote } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { VOTE_STATUS, VOTE_STATUS_ORDER, groupResponsesByStatus } from "@/lib/voteStatus";
 
 const STATUS_META = {
   yes: {
-    icon: Check,
-    label: "Accepted",
+    ...VOTE_STATUS.yes,
     activeClasses: "border-primary bg-primary text-white",
-    textClass: "text-success",
     rowActiveClasses: "border-primary bg-primary-soft",
   },
   maybe: {
-    icon: HelpCircle,
-    label: "Maybe",
+    ...VOTE_STATUS.maybe,
     activeClasses: "border-amber-500 bg-amber-500 text-white",
-    textClass: "text-amber-600",
     rowActiveClasses: "border-amber-400 bg-amber-50",
   },
   no: {
-    icon: X,
-    label: "Can't make it",
+    ...VOTE_STATUS.no,
     activeClasses: "border-destructive bg-destructive text-white",
-    textClass: "text-destructive",
     rowActiveClasses: "border-destructive/40 bg-destructive/5",
   },
 };
-const STATUS_ORDER = ["yes", "maybe", "no"];
+const STATUS_ORDER = VOTE_STATUS_ORDER;
 
 function formatDate(dateStr) {
   const date = new Date(`${dateStr}T00:00:00`);
@@ -379,12 +364,7 @@ export function PollVotePage() {
               const isWinner = isLocked && opt.id === poll.locked_option_id;
               const rowActiveClasses = myStatus ? STATUS_META[myStatus].rowActiveClasses : null;
 
-              const groupedResponses = STATUS_ORDER.map((status) => ({
-                status,
-                names: (opt.responses || [])
-                  .filter((r) => r.status === status)
-                  .map((r) => r.name),
-              })).filter((group) => group.names.length > 0);
+              const groupedResponses = groupResponsesByStatus(opt);
 
               return (
                 <div

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Bell, Calendar, CalendarRange, Check, Copy, Lock, Sun, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,12 @@ import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { useAuth } from "@/context/AuthContext";
 import { deletePoll, getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import {
+  VOTE_STATUS,
+  VOTE_STATUS_ORDER,
+  groupResponsesByStatus,
+  optionStatusCounts,
+} from "@/lib/voteStatus";
 
 function formatDate(dateStr) {
   const date = new Date(`${dateStr}T00:00:00`);
@@ -262,6 +268,12 @@ export function PollDetailPage() {
           <div className="mt-4 space-y-2.5">
             {poll.options.map((opt) => {
               const isLocked = poll.locked_option_id === opt.id;
+              const counts = optionStatusCounts(opt);
+              const grouped = groupResponsesByStatus(opt);
+              const statuses =
+                poll.allow_maybe === false
+                  ? VOTE_STATUS_ORDER.filter((status) => status !== "maybe")
+                  : VOTE_STATUS_ORDER;
               return (
                 <div
                   key={opt.id}
@@ -296,13 +308,48 @@ export function PollDetailPage() {
                         : opt.end_time
                           ? `${formatTime(opt.start_time)} – ${formatTime(opt.end_time)}`
                           : formatTime(opt.start_time)}
-                      {" · "}
-                      {opt.vote_count} {opt.vote_count === 1 ? "response" : "responses"}
                     </p>
-                    {opt.voters?.length > 0 && (
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {opt.voters.join(", ")}
-                      </p>
+                    <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold">
+                      {statuses.map((status, index) => {
+                        const meta = VOTE_STATUS[status];
+                        const Icon = meta.icon;
+                        const count = counts[status];
+                        return (
+                          <Fragment key={status}>
+                            {index > 0 && <span className="text-muted-foreground/40">/</span>}
+                            <span
+                              title={meta.label}
+                              aria-label={`${count} ${meta.label}`}
+                              className={cn(
+                                "inline-flex items-center gap-1",
+                                count > 0 ? meta.textClass : "text-muted-foreground/50",
+                              )}
+                            >
+                              {count}
+                              <Icon className="h-3.5 w-3.5" />
+                            </span>
+                          </Fragment>
+                        );
+                      })}
+                    </div>
+                    {grouped.length > 0 && (
+                      <div className="mt-1.5 space-y-0.5">
+                        {grouped.map(({ status, names }) => {
+                          const meta = VOTE_STATUS[status];
+                          const Icon = meta.icon;
+                          return (
+                            <p
+                              key={status}
+                              className={cn("flex items-start gap-1.5 text-xs", meta.textClass)}
+                            >
+                              <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                              <span className="min-w-0 text-muted-foreground">
+                                {names.join(", ")}
+                              </span>
+                            </p>
+                          );
+                        })}
+                      </div>
                     )}
                   </div>
                   <Button
