@@ -1,9 +1,9 @@
 /**
  * Regenerate client/public/sitemap.xml from scripts/public-routes.mjs.
  *
- * Also writes sitemap_index.xml pointing at it. Search Console caches a failed
- * fetch against the exact URL submitted, so having a second valid entry point
- * makes it possible to resubmit without that history.
+ * Also writes sitemap_index.xml pointing at it. Search Console can cache a failed
+ * fetch against sitemap.xml; submitting sitemap_index.xml gives a fresh entry that
+ * Google follows to the child sitemap with all URLs.
  */
 import fs from "node:fs";
 import path from "node:path";
