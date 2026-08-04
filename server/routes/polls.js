@@ -6,6 +6,7 @@ const {
   getPollByIdForUser,
   getPollForNotify,
   lockPollOption,
+  addPollOptions,
   deletePoll,
 } = require("../polls/model");
 const { notifyPollEvent } = require("../integrations/notify");
@@ -116,6 +117,28 @@ router.delete("/:id", async (req, res) => {
   try {
     await deletePoll(req.params.id, req.session.userId);
     res.json({ ok: true });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.post("/:id/options", async (req, res) => {
+  try {
+    const { poll, addedOptions } = await addPollOptions(
+      req.params.id,
+      req.session.userId,
+      req.body.options,
+      req.session.user?.displayName || "Creator",
+    );
+
+    const fullPoll = await getPollForNotify(req.params.id);
+    if ((fullPoll?.discord_webhook_url || fullPoll?.slack_webhook_url) && addedOptions.length) {
+      notifyPollEvent(fullPoll, "dates_added", { options: addedOptions }, { force: true }).catch(
+        (err) => console.error("Notification failed:", err.message),
+      );
+    }
+
+    res.json(poll);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

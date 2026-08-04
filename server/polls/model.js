@@ -363,6 +363,75 @@ async function lockPollOption(pollId, userId, optionId) {
 
 // GDPR art. 17: poll-ejeren kan slette afstemningen inkl. alle stemmer.
 // ON DELETE CASCADE fjerner options, votes og reminders.
+async function addPollOptions(pollId, userId, options, voterName) {
+  const pollResult = await query(
+    `SELECT id, locked_option_id FROM polls WHERE id = $1 AND user_id = $2`,
+    [pollId, userId],
+  );
+  const poll = pollResult.rows[0];
+  if (!poll) {
+    throw new Error("Poll not found");
+  }
+  if (poll.locked_option_id) {
+    throw new Error("Unlock the poll before adding dates");
+  }
+
+  const cleanOptions = normalizeOptions(options);
+  const existing = await loadOptions(pollId);
+  const existingKeys = new Set(
+    existing.map(
+      (opt) =>
+        `${opt.option_date}|${opt.end_date || ""}|${opt.all_day}|${opt.start_time || ""}|${opt.end_time || ""}`,
+    ),
+  );
+
+  for (const option of cleanOptions) {
+    const key = `${option.date}|${option.endDate || ""}|${option.allDay}|${option.time || ""}|${option.endTime || ""}`;
+    if (existingKeys.has(key)) {
+      throw new Error("One or more dates are already in this poll");
+    }
+    existingKeys.add(key);
+  }
+
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    for (const option of cleanOptions) {
+      const optionResult = await client.query(
+        `INSERT INTO poll_options (poll_id, option_date, end_date, start_time, end_time, all_day)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id`,
+        [pollId, option.date, option.endDate, option.time, option.endTime, option.allDay],
+      );
+
+      await client.query(
+        `INSERT INTO votes (poll_option_id, user_id, voter_name, status)
+         VALUES ($1, $2, $3, 'yes')`,
+        [optionResult.rows[0].id, userId, voterName || null],
+      );
+    }
+
+    await client.query(
+      `UPDATE polls SET completed_notified = false WHERE id = $1`,
+      [pollId],
+    );
+
+    await client.query("COMMIT");
+
+    const updated = await getPollByIdForUser(pollId, userId);
+    const addedOptions = updated.options.filter((opt) => !existing.some((e) => e.id === opt.id));
+    return { poll: updated, addedOptions };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 async function deletePoll(pollId, userId) {
   const result = await query(
     `DELETE FROM polls WHERE id = $1 AND user_id = $2 RETURNING id`,
@@ -402,5 +471,6 @@ module.exports = {
   getPollForNotify,
   markCompletedNotified,
   lockPollOption,
+  addPollOptions,
   deletePoll,
 };

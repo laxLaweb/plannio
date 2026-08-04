@@ -1,12 +1,13 @@
 import { Fragment, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Bell, Calendar, CalendarRange, Check, Copy, Lock, Sun, Trash2 } from "lucide-react";
+import { Bell, Calendar, CalendarRange, Check, Copy, Lock, Plus, Sun, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
 import { SiteLegalNote } from "@/components/SiteLegalNote";
+import { AddPollDatesForm } from "@/components/polls/AddPollDatesForm";
 import { useAuth } from "@/context/AuthContext";
-import { deletePoll, getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
+import { addPollOptions, deletePoll, getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
   VOTE_STATUS,
@@ -53,6 +54,8 @@ export function PollDetailPage() {
   const [reminderMessage, setReminderMessage] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
+  const [addingDates, setAddingDates] = useState(false);
+  const [showAddDates, setShowAddDates] = useState(false);
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -97,6 +100,17 @@ export function PollDetailPage() {
     } catch (err) {
       setDeleteError(err.message);
       setDeleting(false);
+    }
+  };
+
+  const handleAddDates = async (options) => {
+    setAddingDates(true);
+    try {
+      const updated = await addPollOptions(id, options);
+      setPoll(updated);
+      setShowAddDates(false);
+    } finally {
+      setAddingDates(false);
     }
   };
 
@@ -366,6 +380,28 @@ export function PollDetailPage() {
             })}
           </div>
           {lockError && <p className="mt-3 text-sm text-destructive">{lockError}</p>}
+
+          {!poll.locked_option_id && (
+            <>
+              {showAddDates ? (
+                <AddPollDatesForm
+                  existingOptions={poll.options}
+                  onSubmit={handleAddDates}
+                  saving={addingDates}
+                />
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => setShowAddDates(true)}
+                >
+                  <Plus className="h-4 w-4" /> Add more dates
+                </Button>
+              )}
+            </>
+          )}
         </div>
 
         <div className="mt-6 rounded-3xl border border-destructive/30 bg-card p-6 shadow-soft">

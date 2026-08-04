@@ -55,6 +55,13 @@ export function deleteAccount() {
   });
 }
 
+export function addPollOptions(id, options) {
+  return request(`/api/polls/${id}/options`, {
+    method: "POST",
+    body: JSON.stringify({ options }),
+  });
+}
+
 export function lockPollOption(id, optionId) {
   return request(`/api/polls/${id}/lock`, {
     method: "POST",

@@ -143,6 +143,18 @@ function buildMessage(poll, event, data = {}) {
         buttonText: "Vote here",
         shareUrl,
       };
+    case "dates_added": {
+      const lines = (data.options || []).map(formatOptionLine).join("\n");
+      return {
+        color: BRAND,
+        headerText: `📅 New dates added: ${poll.title}`,
+        bodyText: lines
+          ? `The organiser added more times to choose from:\n${lines}`
+          : "The organiser added more times to choose from.",
+        buttonText: "Vote here",
+        shareUrl,
+      };
+    }
     case "completed":
       return {
         color: GREEN,

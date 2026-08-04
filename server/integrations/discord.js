@@ -132,6 +132,18 @@ function buildEmbed(poll, event, data = {}) {
         color: 0xf59e0b,
         fields: [{ name: "Vote here", value: shareUrl }],
       };
+    case "dates_added": {
+      const lines = (data.options || []).map(formatOptionLine).join("\n");
+      return {
+        title: `📅 New dates added: ${poll.title}`,
+        description: "The organiser added more times to choose from.",
+        color: BRAND_COLOR,
+        fields: [
+          { name: "New dates", value: lines || "See the poll" },
+          { name: "Vote here", value: shareUrl },
+        ],
+      };
+    }
     case "completed":
       return {
         title: `🎉 Everyone has responded: ${poll.title}`,
