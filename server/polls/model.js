@@ -260,6 +260,28 @@ async function listPollsByUser(userId) {
   return polls;
 }
 
+async function listVotedPollsByUser(userId) {
+  const result = await query(
+    `SELECT p.id, p.title, p.slug, p.description, p.created_at,
+            p.expected_responses, p.locked_option_id,
+            COUNT(DISTINCT o.id)::int AS option_count,
+            MAX(v.created_at) AS last_voted_at
+     FROM polls p
+     JOIN poll_options o ON o.poll_id = p.id
+     JOIN votes v ON v.poll_option_id = o.id AND v.user_id = $1
+     WHERE p.user_id != $1
+     GROUP BY p.id
+     ORDER BY MAX(v.created_at) DESC`,
+    [userId],
+  );
+
+  const polls = result.rows;
+  for (const poll of polls) {
+    poll.response_count = await countResponders(poll.id);
+  }
+  return polls;
+}
+
 async function loadOptions(pollId) {
   const optionsResult = await query(
     `SELECT id,
@@ -467,6 +489,7 @@ async function getPollForNotify(pollId) {
 module.exports = {
   createPoll,
   listPollsByUser,
+  listVotedPollsByUser,
   getPollByIdForUser,
   getPollForNotify,
   markCompletedNotified,

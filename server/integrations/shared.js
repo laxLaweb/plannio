@@ -1,4 +1,5 @@
 // Provider-agnostic helpers shared by discord.js and slack.js.
+const { formatWeekNumbersLabel } = require("../../shared/weekNumbers.cjs");
 
 function getAppUrl() {
   return process.env.APP_URL || "http://localhost:3000";
@@ -32,7 +33,14 @@ function formatOptionLabel(option) {
     time = option.end_time ? `${from} – ${String(option.end_time).slice(0, 5)}` : from;
   }
 
-  return `${label} — ${time}`;
+  const weekLabel = formatWeekNumbersLabel(
+    option.option_date,
+    option.end_date && option.end_date !== option.option_date ? option.end_date : undefined,
+  );
+
+  const parts = [label, time];
+  if (weekLabel) parts.push(weekLabel);
+  return parts.join(" — ");
 }
 
 function formatOptionLine(option) {

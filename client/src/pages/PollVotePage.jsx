@@ -6,6 +6,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
 import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { LoginOptions } from "@/components/auth/LoginOptions";
+import { OptionWeekNumbers } from "@/components/polls/OptionWeekNumbers";
 import { useAuth } from "@/context/AuthContext";
 import { getPublicPoll, submitVote } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -233,6 +234,11 @@ export function PollVotePage() {
               <Lock className="h-4 w-4 shrink-0" />
               Final date: {optionDateLabel(lockedOption)} · {optionTimeLabel(lockedOption)}
             </div>
+            <OptionWeekNumbers
+              startDate={lockedOption.option_date}
+              endDate={lockedOption.end_date}
+              className="mt-0.5 text-success/70"
+            />
             <p className="mt-1 text-xs font-normal text-success/80">
               This poll is locked — new responses are no longer accepted.
             </p>
@@ -395,6 +401,7 @@ export function PollVotePage() {
                           {poll.expected_responses ? ` / ${poll.expected_responses}` : ""}
                         </span>
                       </span>
+                      <OptionWeekNumbers startDate={opt.option_date} endDate={opt.end_date} />
                       <span className="block text-xs text-muted-foreground">
                         {optionTimeLabel(opt)}
                       </span>

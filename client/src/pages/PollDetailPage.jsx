@@ -6,6 +6,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { PageMeta } from "@/components/PageMeta";
 import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { AddPollDatesForm } from "@/components/polls/AddPollDatesForm";
+import { OptionWeekNumbers } from "@/components/polls/OptionWeekNumbers";
 import { useAuth } from "@/context/AuthContext";
 import { addPollOptions, deletePoll, getPoll, lockPollOption, sendPollReminder } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -316,6 +317,7 @@ export function PollDetailPage() {
                     <p className="text-sm font-semibold capitalize text-foreground">
                       {formatOptionDate(opt)}
                     </p>
+                    <OptionWeekNumbers startDate={opt.option_date} endDate={opt.end_date} />
                     <p className="text-xs text-muted-foreground">
                       {opt.all_day
                         ? "All day"

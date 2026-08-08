@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DatePickerCalendar } from "@/components/polls/DatePickerCalendar";
+import { OptionWeekNumbers } from "@/components/polls/OptionWeekNumbers";
 import { cn } from "@/lib/utils";
 
 let rowSeq = 0;
@@ -268,6 +269,7 @@ export function AddPollDatesForm({ existingOptions = [], onSubmit, saving }) {
                       {formatShort(row.date)}
                       {row.isRange && row.endDate ? ` – ${formatShort(row.endDate)}` : ""}
                     </span>
+                    <OptionWeekNumbers startDate={row.date} endDate={row.endDate} className="w-full" />
                     {sameTime && (
                       <span className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">
                         <Clock className="h-3 w-3" />
@@ -351,6 +353,9 @@ export function AddPollDatesForm({ existingOptions = [], onSubmit, saving }) {
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
+                {row.date && (
+                  <OptionWeekNumbers startDate={row.date} endDate={row.endDate} className="mt-2" />
+                )}
                 {!sameTime && (
                   <div className="mt-3">
                     <TimeRange

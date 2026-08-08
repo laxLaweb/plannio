@@ -193,6 +193,16 @@ export function AccountPage() {
         </div>
 
         <div className="mt-6 rounded-3xl border border-border bg-card p-6 shadow-soft">
+          <h2 className="text-sm font-semibold text-foreground">Poll activity</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            View polls you&apos;ve created and polls you&apos;ve voted on.
+          </p>
+          <Button type="button" variant="outline" size="default" className="mt-4" asChild>
+            <Link to="/polls">Go to my polls</Link>
+          </Button>
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-border bg-card p-6 shadow-soft">
           <h2 className="text-sm font-semibold text-foreground">Your data</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Download a copy of everything Plannio stores about you — profile, polls, and votes — as

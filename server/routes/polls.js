@@ -3,6 +3,7 @@ const { requireAuth } = require("../auth/middleware");
 const {
   createPoll,
   listPollsByUser,
+  listVotedPollsByUser,
   getPollByIdForUser,
   getPollForNotify,
   lockPollOption,
@@ -20,6 +21,15 @@ router.use(requireAuth);
 router.get("/", async (req, res) => {
   try {
     const polls = await listPollsByUser(req.session.userId);
+    res.json(polls);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/voted", async (req, res) => {
+  try {
+    const polls = await listVotedPollsByUser(req.session.userId);
     res.json(polls);
   } catch (error) {
     res.status(500).json({ error: error.message });

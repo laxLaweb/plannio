@@ -1,29 +1,99 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Check, Lock, Users } from "lucide-react";
+import { Calendar, Check, Lock, Users, Vote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { CreatePollButton } from "@/components/polls/CreatePollButton";
 import { PageMeta } from "@/components/PageMeta";
 import { SiteLegalNote } from "@/components/SiteLegalNote";
 import { useAuth } from "@/context/AuthContext";
-import { listPolls } from "@/lib/api";
+import { listPolls, listVotedPolls } from "@/lib/api";
 
-function formatCreatedAt(dateStr) {
+function formatDate(dateStr) {
   const date = new Date(dateStr);
   return date.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
 }
 
+function PollStatusBadge({ poll, variant }) {
+  if (poll.locked_option_id) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
+        <Lock className="h-3.5 w-3.5" /> Locked
+      </span>
+    );
+  }
+
+  if (
+    variant === "created" &&
+    poll.expected_responses &&
+    poll.response_count >= poll.expected_responses
+  ) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
+        <Check className="h-3.5 w-3.5" /> Ready to lock
+      </span>
+    );
+  }
+
+  if (variant === "voted") {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
+        <Vote className="h-3.5 w-3.5" /> Voted
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
+      Open
+    </span>
+  );
+}
+
+function PollCard({ poll, to, dateLabel, dateValue, variant }) {
+  return (
+    <Link
+      to={to}
+      className="block rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:border-primary/40"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-base font-semibold text-foreground">{poll.title}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5" />
+              {dateLabel} {formatDate(dateValue)}
+            </span>
+            <span>
+              {poll.option_count} {poll.option_count === 1 ? "date" : "dates"}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" />
+              {poll.response_count}
+              {poll.expected_responses ? ` / ${poll.expected_responses}` : ""} responded
+            </span>
+          </p>
+        </div>
+        <PollStatusBadge poll={poll} variant={variant} />
+      </div>
+    </Link>
+  );
+}
+
 export function MyPollsPage() {
   const { user, loading: authLoading } = useAuth();
-  const [polls, setPolls] = useState([]);
+  const [createdPolls, setCreatedPolls] = useState([]);
+  const [votedPolls, setVotedPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (authLoading || !user) return;
-    listPolls()
-      .then(setPolls)
+    Promise.all([listPolls(), listVotedPolls()])
+      .then(([created, voted]) => {
+        setCreatedPolls(created);
+        setVotedPolls(voted);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [user, authLoading]);
@@ -55,6 +125,8 @@ export function MyPollsPage() {
     );
   }
 
+  const hasAnyPolls = createdPolls.length > 0 || votedPolls.length > 0;
+
   return (
     <div className="min-h-screen bg-background">
       <PageMeta title="My polls" noindex />
@@ -67,15 +139,15 @@ export function MyPollsPage() {
           </CreatePollButton>
         </div>
         <p className="mt-2 text-muted-foreground">
-          Every poll you&apos;ve created, in one place.
+          Polls you&apos;ve created and polls you&apos;ve voted on.
         </p>
 
         {error && <p className="mt-6 text-sm text-destructive">{error}</p>}
 
-        {!error && polls.length === 0 && (
+        {!error && !hasAnyPolls && (
           <div className="mt-8 rounded-3xl border border-border bg-card p-10 text-center shadow-soft">
             <p className="text-sm text-muted-foreground">
-              You haven&apos;t created any polls yet.
+              You haven&apos;t created or voted on any polls yet.
             </p>
             <CreatePollButton variant="hero" size="lg" className="mt-6">
               Create your first poll
@@ -83,51 +155,67 @@ export function MyPollsPage() {
           </div>
         )}
 
-        {polls.length > 0 && (
-          <div className="mt-8 space-y-3">
-            {polls.map((poll) => (
-              <Link
-                key={poll.id}
-                to={`/polls/${poll.id}`}
-                className="block rounded-2xl border border-border bg-card p-5 shadow-soft transition-all hover:-translate-y-0.5 hover:border-primary/40"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-base font-semibold text-foreground">{poll.title}</p>
-                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {formatCreatedAt(poll.created_at)}
-                      </span>
-                      <span>
-                        {poll.option_count} {poll.option_count === 1 ? "date" : "dates"}
-                      </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Users className="h-3.5 w-3.5" />
-                        {poll.response_count}
-                        {poll.expected_responses ? ` / ${poll.expected_responses}` : ""} responded
-                      </span>
-                    </p>
-                  </div>
-                  {poll.locked_option_id ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
-                      <Lock className="h-3.5 w-3.5" /> Locked
-                    </span>
-                  ) : poll.expected_responses &&
-                    poll.response_count >= poll.expected_responses ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
-                      <Check className="h-3.5 w-3.5" /> Ready to lock
-                    </span>
-                  ) : (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-muted-foreground">
-                      Open
-                    </span>
-                  )}
+        {!error && (
+          <>
+            <section id="created" className="mt-10">
+              <h2 className="text-lg font-bold text-foreground">Created by you</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Manage your polls, share links, and lock a final date.
+              </p>
+
+              {createdPolls.length === 0 ? (
+                <div className="mt-4 rounded-2xl border border-dashed border-border bg-card/50 px-5 py-8 text-center">
+                  <p className="text-sm text-muted-foreground">No polls created yet.</p>
+                  <CreatePollButton variant="outline" size="sm" className="mt-4">
+                    Create poll
+                  </CreatePollButton>
                 </div>
-              </Link>
-            ))}
-          </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {createdPolls.map((poll) => (
+                    <PollCard
+                      key={poll.id}
+                      poll={poll}
+                      to={`/polls/${poll.id}`}
+                      dateLabel="Created"
+                      dateValue={poll.created_at}
+                      variant="created"
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section id="voted" className="mt-10">
+              <h2 className="text-lg font-bold text-foreground">Polls you&apos;ve voted on</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Open a poll to view results or update your response.
+              </p>
+
+              {votedPolls.length === 0 ? (
+                <div className="mt-4 rounded-2xl border border-dashed border-border bg-card/50 px-5 py-8 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    When you vote on someone else&apos;s poll while signed in, it appears here.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {votedPolls.map((poll) => (
+                    <PollCard
+                      key={poll.id}
+                      poll={poll}
+                      to={`/p/${poll.slug}`}
+                      dateLabel="Voted"
+                      dateValue={poll.last_voted_at}
+                      variant="voted"
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
         )}
+
         <SiteLegalNote className="mt-10" />
       </div>
     </div>

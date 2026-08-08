@@ -25,6 +25,10 @@ export function listPolls() {
   return request("/api/polls");
 }
 
+export function listVotedPolls() {
+  return request("/api/polls/voted");
+}
+
 export function getPoll(id) {
   return request(`/api/polls/${id}`);
 }

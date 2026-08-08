@@ -4,6 +4,7 @@ import { Plus, Trash2, Clock, Sun, CalendarRange, List, CalendarDays } from "luc
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/landing/Navbar";
 import { DatePickerCalendar } from "@/components/polls/DatePickerCalendar";
+import { OptionWeekNumbers } from "@/components/polls/OptionWeekNumbers";
 import { ChannelUpdates } from "@/components/polls/ChannelUpdates";
 import { PageMeta } from "@/components/PageMeta";
 import { SiteLegalNote } from "@/components/SiteLegalNote";
@@ -402,6 +403,7 @@ export function CreatePollPage() {
                             {formatShort(row.date)}
                             {row.isRange && row.endDate ? ` – ${formatShort(row.endDate)}` : ""}
                           </span>
+                          <OptionWeekNumbers startDate={row.date} endDate={row.endDate} className="w-full" />
 
                           {sameTime && (
                             <span className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">
@@ -492,6 +494,10 @@ export function CreatePollPage() {
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
+
+                      {row.date && (
+                        <OptionWeekNumbers startDate={row.date} endDate={row.endDate} className="mt-2" />
+                      )}
 
                       {!sameTime && (
                         <div className="mt-3">
