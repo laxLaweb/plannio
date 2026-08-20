@@ -43,6 +43,10 @@ export function ContentPage({
   path,
   breadcrumbCategory,
   faqs,
+  howToSteps,
+  relatedReads,
+  dateModified = "2026-08-20",
+  datePublished,
   children,
 }) {
   const crumbs = useMemo(
@@ -63,6 +67,23 @@ export function ContentPage({
     };
   }, [faqs]);
 
+  const howToSchema = useMemo(() => {
+    if (!howToSteps?.length) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: title,
+      description,
+      url: absoluteUrl(path),
+      step: howToSteps.map((step, index) => ({
+        "@type": "HowToStep",
+        position: index + 1,
+        name: step.title,
+        text: step.body,
+      })),
+    };
+  }, [howToSteps, title, description, path]);
+
   const pageSchema = useMemo(
     () => ({
       "@context": "https://schema.org",
@@ -70,9 +91,33 @@ export function ContentPage({
       name: title,
       description,
       url: absoluteUrl(path),
+      inLanguage: "en",
+      dateModified,
+      datePublished: datePublished || dateModified,
       isPartOf: { "@type": "WebSite", name: "Plannio", url: absoluteUrl("/") },
     }),
-    [title, description, path],
+    [title, description, path, dateModified, datePublished],
+  );
+
+  const articleSchema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: title,
+      description,
+      dateModified,
+      datePublished: datePublished || dateModified,
+      inLanguage: "en",
+      mainEntityOfPage: absoluteUrl(path),
+      author: { "@type": "Organization", name: "Plannio", url: absoluteUrl("/") },
+      publisher: {
+        "@type": "Organization",
+        name: "Plannio",
+        url: absoluteUrl("/"),
+        logo: { "@type": "ImageObject", url: absoluteUrl("/og-image.png") },
+      },
+    }),
+    [title, description, path, dateModified, datePublished],
   );
 
   const breadcrumbSchema = useMemo(() => buildBreadcrumbSchema(crumbs), [crumbs]);
@@ -83,8 +128,10 @@ export function ContentPage({
     <div className="min-h-screen bg-background">
       <PageMeta title={title} description={description} path={path} ogType="article" />
       <JsonLd id={`page-schema${schemaId}`} data={pageSchema} />
+      <JsonLd id={`article-schema${schemaId}`} data={articleSchema} />
       <JsonLd id={`breadcrumb-schema${schemaId}`} data={breadcrumbSchema} />
       {faqSchema && <JsonLd id={`faq-schema${schemaId}`} data={faqSchema} />}
+      {howToSchema && <JsonLd id={`howto-schema${schemaId}`} data={howToSchema} />}
       <Navbar showNavLinks={false} />
       <main className="mx-auto max-w-3xl px-5 pb-20 pt-28 sm:px-8 sm:pt-36">
         <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
@@ -117,6 +164,7 @@ export function ContentPage({
           </ol>
         </nav>
         <article>{children}</article>
+        {relatedReads?.length > 0 && <RelatedReads links={relatedReads} />}
         <ContentCta />
       </main>
       <Footer />
@@ -166,6 +214,32 @@ export function ContentFaq({ faqs }) {
           </div>
         ))}
       </dl>
+    </section>
+  );
+}
+
+export function RelatedReads({ links }) {
+  if (!links?.length) return null;
+  return (
+    <section className="mt-12">
+      <h2 className="text-xl font-bold tracking-tight text-foreground">Related reads</h2>
+      <ul className="mt-4 space-y-3">
+        {links.map((link) => (
+          <li key={link.to}>
+            <Link
+              to={link.to}
+              className="group block rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+            >
+              <span className="text-sm font-semibold text-primary group-hover:underline">
+                {link.label}
+              </span>
+              {link.desc && (
+                <span className="mt-1 block text-sm text-muted-foreground">{link.desc}</span>
+              )}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

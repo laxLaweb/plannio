@@ -15,14 +15,25 @@ const { processPendingReminders } = require("./polls/reminders");
 const { deleteExpiredPolls } = require("./polls/retention");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 const isProduction = process.env.NODE_ENV === "production";
 
 app.set("trust proxy", 1);
 
 // Crawler-facing files are served uncompressed: they are a few KB at most, and
 // content-encoding negotiation is one less thing that can break a sitemap fetch.
-const UNCOMPRESSED_PATHS = new Set(["/robots.txt", "/sitemap.xml", "/sitemap_index.xml"]);
+const UNCOMPRESSED_PATHS = new Set([
+  "/robots.txt",
+  "/sitemap_new.xml",
+  "/sitemap_index.xml",
+  "/llms.txt",
+  "/llms-full.txt",
+]);
+
+// GSC cached a failed fetch of /sitemap.xml — canonical file is sitemap_new.xml.
+app.get("/sitemap.xml", (_req, res) => {
+  res.redirect(301, "/sitemap_new.xml");
+});
 
 app.use(
   compression({

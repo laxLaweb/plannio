@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   ContentPage,
   ContentLead,
@@ -26,9 +25,45 @@ const faqs = [
   },
 ];
 
+const STEPS = [
+  {
+    title: "Open Create poll",
+    body: "Choose calendar or list view — both support ranges.",
+  },
+  {
+    title: "Select start and end dates",
+    body: "In calendar view, pick the first and last day of the range. In list view, add a range row directly.",
+  },
+  {
+    title: "Set all-day or specific times",
+    body: "Trips often use all-day. Meetings might use one time applied to all dates or per-date times.",
+  },
+  {
+    title: "Repeat for each weekend",
+    body: "Add 3–4 range options so voters express preference across weekends, not just one.",
+  },
+  {
+    title: "Share and compare overlap",
+    body: "Results show vote counts per range. The highest count is your best candidate.",
+  },
+];
+
+const RELATED = [
+  {
+    to: "/use-cases/weekend-trip",
+    label: "Plan a weekend trip everyone can join",
+    desc: "Ranges plus a friend-group poll link.",
+  },
+  {
+    to: "/guides/stop-chasing-replies",
+    label: "Stop chasing replies when planning group dates",
+    desc: "Keep the trip thread from becoming a second calendar.",
+  },
+];
+
 export function DateRangesPage() {
   return (
-    <ContentPage {...META} faqs={faqs}>
+    <ContentPage {...META} faqs={faqs} howToSteps={STEPS} relatedReads={RELATED}>
       <p className="text-sm font-semibold uppercase tracking-wider text-primary">How-to</p>
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
         How to propose multiple weekends in one poll
@@ -36,9 +71,9 @@ export function DateRangesPage() {
       <p className="mt-2 text-sm text-muted-foreground">Last updated: July 2026</p>
 
       <ContentLead>
-        Plannio is a free date-poll tool with built-in Discord and Slack channel updates. Date ranges
-        let you offer whole weekends (or multi-day trips) as single options — voters tick every range
-        that works instead of negotiating one day at a time.
+        Date ranges let you offer whole weekends — or any multi-day stretch — as single poll
+        options. Voters tick every range that works instead of negotiating Friday, Saturday, and
+        Sunday as three separate arguments.
       </ContentLead>
 
       <ContentSection title="When to use date ranges">
@@ -50,42 +85,7 @@ export function DateRangesPage() {
       </ContentSection>
 
       <ContentSection title="How to add ranges in Plannio">
-        <ContentSteps
-          steps={[
-            {
-              title: "Open Create poll",
-              body: "Choose calendar or list view — both support ranges.",
-            },
-            {
-              title: "Select start and end dates",
-              body: "In calendar view, pick the first and last day of the range. In list view, add a range row directly.",
-            },
-            {
-              title: "Set all-day or specific times",
-              body: "Trips often use all-day. Meetings might use one time applied to all dates or per-date times.",
-            },
-            {
-              title: "Repeat for each weekend",
-              body: "Add 3–4 range options so voters express preference across weekends, not just one.",
-            },
-            {
-              title: "Share and compare overlap",
-              body: "Results show vote counts per range. The highest count is your best candidate.",
-            },
-          ]}
-        />
-      </ContentSection>
-
-      <ContentSection title="Related">
-        <p>
-          <Link to="/use-cases/weekend-trip" className="font-semibold text-primary hover:underline">
-            Plan a weekend trip
-          </Link>
-          {" · "}
-          <Link to="/guides/stop-chasing-replies" className="font-semibold text-primary hover:underline">
-            Stop chasing replies
-          </Link>
-        </p>
+        <ContentSteps steps={STEPS} />
       </ContentSection>
 
       <ContentFaq faqs={faqs} />

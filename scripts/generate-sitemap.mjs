@@ -1,9 +1,10 @@
 /**
- * Regenerate client/public/sitemap.xml from scripts/public-routes.mjs.
+ * Regenerate client/public/sitemap_new.xml from scripts/public-routes.mjs.
  *
- * Also writes sitemap_index.xml pointing at it. Search Console can cache a failed
- * fetch against sitemap.xml; submitting sitemap_index.xml gives a fresh entry that
- * Google follows to the child sitemap with all URLs.
+ * Canonical sitemap for this project is sitemap_new.xml — Google Search Console
+ * cached a failed fetch against /sitemap.xml, so that filename is not used.
+ * sitemap_index.xml points at sitemap_new.xml. /sitemap.xml 301s to
+ * /sitemap_new.xml in the server so old submissions still resolve.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -12,7 +13,7 @@ import { PUBLIC_ROUTES, SITE_URL } from "./public-routes.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, "..", "client", "public");
-const outPath = path.join(publicDir, "sitemap.xml");
+const outPath = path.join(publicDir, "sitemap_new.xml");
 const indexOutPath = path.join(publicDir, "sitemap_index.xml");
 const lastmod = new Date().toISOString().slice(0, 10);
 
@@ -34,7 +35,7 @@ ${urls}
 const indexXml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
-    <loc>${SITE_URL}/sitemap.xml</loc>
+    <loc>${SITE_URL}/sitemap_new.xml</loc>
     <lastmod>${lastmod}</lastmod>
   </sitemap>
 </sitemapindex>

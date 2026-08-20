@@ -2,9 +2,17 @@
 
 Copy-paste text for https://alternativeto.net → Add application.
 
-**Do not** frame Plannio primarily as "alternative to Doodle/When2meet" unless the
-form requires picking a category app — describe the product on its own merits
-(see `docs/seo-plan.md` Phase 5).
+If the form **requires** picking a category app, choose a generic scheduling /
+date-poll category app. Do not lead the listing with “vs Doodle.” Describe
+Plannio on its own merits. A later on-site guide can cover the no-signup
+angle without a competitor feature table (see `docs/seo-plan.md`).
+
+Use this exact opening sentence in every directory listing:
+
+> Plannio is a free date-poll tool with built-in Discord and Slack channel updates.
+
+Add one disambiguation line: this is **plannio.eu**, not the GIS maps product
+and not French HR software that shares the name.
 
 ---
 
@@ -60,7 +68,7 @@ Poll creators: Discord, Slack, or email/password. Voters: optional login, or nam
 
 https://plannio.eu
 
-Guides: https://plannio.eu/guides · Use cases: https://plannio.eu/use-cases
+Guides: https://plannio.eu/guides · Discord without a bot: https://plannio.eu/guides/discord-poll-without-bot · Use cases: https://plannio.eu/use-cases
 
 ---
 

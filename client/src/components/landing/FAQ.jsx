@@ -28,6 +28,14 @@ export const faqs = [
     a: "Not yet — login is currently via Discord or Slack. Google and Apple are coming soon, and multiple login methods can be linked to the same Plannio account.",
   },
   {
+    q: "How do I schedule in Discord without adding a bot?",
+    a: "Create a date poll, then connect a Discord channel during setup. Plannio uses an incoming webhook — it can post to that channel only. No bot is added to the server. After you lock a date, create a native Discord Event if you want Discord's own reminder.",
+  },
+  {
+    q: "Is there a free date poll where voters don't need an account?",
+    a: "Yes. On Plannio only the poll creator signs in. Voters can answer with a name. You can optionally require Discord or Slack login. Creating polls and collecting votes is free on the features that are live today.",
+  },
+  {
     q: "Is Plannio free?",
     a: "Yes. You can create date polls and share them for free. There's no paywall for the features that are live today.",
   },

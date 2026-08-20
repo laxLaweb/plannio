@@ -1,0 +1,24 @@
+---
+description: Canonical sitemap is sitemap_new.xml, never sitemap.xml
+alwaysApply: true
+---
+
+# Sitemap filename
+
+The canonical sitemap for Plannio is **`client/public/sitemap_new.xml`**.
+
+Google Search Console cached a failed fetch against `/sitemap.xml`. Do not regenerate, submit, or document `sitemap.xml` as the live sitemap.
+
+- Generate via `scripts/generate-sitemap.mjs` → `sitemap_new.xml`
+- `sitemap_index.xml` `<loc>` must be `https://plannio.eu/sitemap_new.xml`
+- `robots.txt` Sitemap line must be `https://plannio.eu/sitemap_new.xml`
+- In GSC/Bing submit `sitemap_new.xml` and/or `sitemap_index.xml`
+- `/sitemap.xml` may only exist as a **301** to `/sitemap_new.xml` on the server — never as a urlset file in `client/public/`
+
+```js
+// BAD — writes the poisoned filename
+const outPath = path.join(publicDir, "sitemap.xml");
+
+// GOOD
+const outPath = path.join(publicDir, "sitemap_new.xml");
+```

@@ -64,6 +64,16 @@ const DiscordPollWithoutBotPage = lazy(() =>
     default: m.DiscordPollWithoutBotPage,
   })),
 );
+const DiscordEventPlanningPage = lazy(() =>
+  import("./pages/content/guides/DiscordEventPlanningPage").then((m) => ({
+    default: m.DiscordEventPlanningPage,
+  })),
+);
+const FreeGroupPollPage = lazy(() =>
+  import("./pages/content/guides/FreeGroupPollPage").then((m) => ({
+    default: m.FreeGroupPollPage,
+  })),
+);
 const StopChasingRepliesPage = lazy(() =>
   import("./pages/content/guides/StopChasingRepliesPage").then((m) => ({
     default: m.StopChasingRepliesPage,
@@ -128,8 +138,10 @@ function App() {
                 <Route path="/guides" element={<GuidesHubPage />} />
                 <Route path="/guides/availability-poll" element={<AvailabilityPollPage />} />
                 <Route path="/guides/vote-without-account" element={<VoteWithoutAccountPage />} />
+                <Route path="/guides/free-group-poll" element={<FreeGroupPollPage />} />
                 <Route path="/guides/expected-responses" element={<ExpectedResponsesPage />} />
                 <Route path="/guides/discord-poll-without-bot" element={<DiscordPollWithoutBotPage />} />
+                <Route path="/guides/discord-event-planning" element={<DiscordEventPlanningPage />} />
                 <Route path="/guides/stop-chasing-replies" element={<StopChasingRepliesPage />} />
                 <Route path="/guides/date-ranges" element={<DateRangesPage />} />
                 <Route path="/use-cases" element={<UseCasesHubPage />} />

@@ -10,7 +10,7 @@ function getWebhookConfig() {
   const clientSecret = process.env.DISCORD_CLIENT_SECRET;
   const redirectUri =
     process.env.DISCORD_WEBHOOK_REDIRECT_URI ||
-    "http://localhost:5000/api/integrations/discord/callback";
+    "http://localhost:5050/api/integrations/discord/callback";
 
   if (!clientId || !clientSecret) {
     return null;

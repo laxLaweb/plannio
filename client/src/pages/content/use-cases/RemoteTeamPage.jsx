@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   ContentPage,
   ContentLead,
@@ -30,19 +29,60 @@ const faqs = [
   },
 ];
 
+const STEPS = [
+  {
+    title: "Propose 3–5 meeting slots",
+    body: "Add specific days and times in your team's primary time zone. Morning and afternoon options help cover different regions.",
+  },
+  {
+    title: "Connect Slack or Discord",
+    body: "Pick the team channel. Plannio announces new votes and when everyone expected has responded.",
+  },
+  {
+    title: "Set expected responses to team size",
+    body: "Match headcount so you know when the poll is complete — e.g. 10 / 10 for a ten-person squad.",
+  },
+  {
+    title: "Share the link in channel",
+    body: "Pin the poll URL. Teammates mark every slot they can make from any device.",
+  },
+  {
+    title: "Lock the slot with best overlap",
+    body: "Choose the time that works for the most people and send the calendar invite for that slot only.",
+  },
+];
+
+const RELATED = [
+  {
+    to: "/use-cases/team-meetings",
+    label: "Find a meeting time your whole team can make",
+    desc: "Same poll pattern for colocated or hybrid teams.",
+  },
+  {
+    to: "/slack-scheduling",
+    label: "Date polls with Slack channel updates",
+    desc: "Webhook posts so the team channel carries the follow-up.",
+  },
+  {
+    to: "/guides/expected-responses",
+    label: "Track expected responses on a date poll",
+    desc: "Know when the async round is actually finished.",
+  },
+];
+
 export function RemoteTeamPage() {
   return (
-    <ContentPage {...META} faqs={faqs}>
+    <ContentPage {...META} faqs={faqs} howToSteps={STEPS} relatedReads={RELATED}>
       <p className="text-sm font-semibold uppercase tracking-wider text-primary">Use case</p>
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
         Find meeting times for a remote team
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">Last updated: July 2026</p>
+      <p className="mt-2 text-sm text-muted-foreground">Last updated: August 2026</p>
 
       <ContentLead>
-        Plannio is a free date-poll tool with built-in Discord and Slack channel updates. Remote
-        teams use it to propose a few meeting slots, share one link async, track who has responded,
-        and pick the time with the best attendance — without scheduling another scheduling meeting.
+        Remote teams find a meeting time by proposing a few slots in one poll, sharing the link
+        asynchronously, and picking the time with the best attendance. Nobody needs to join a
+        live “when works?” call. Slack or Discord can announce votes as they come in.
       </ContentLead>
 
       <ContentSection title="Why async scheduling beats live polls">
@@ -54,46 +94,7 @@ export function RemoteTeamPage() {
       </ContentSection>
 
       <ContentSection title="Workflow for remote teams">
-        <ContentSteps
-          steps={[
-            {
-              title: "Propose 3–5 meeting slots",
-              body: "Add specific days and times in your team's primary time zone. Morning and afternoon options help cover different regions.",
-            },
-            {
-              title: "Connect Slack or Discord",
-              body: "Pick the team channel. Plannio announces new votes and when everyone expected has responded.",
-            },
-            {
-              title: "Set expected responses to team size",
-              body: "Match headcount so you know when the poll is complete — e.g. 10 / 10 for a ten-person squad.",
-            },
-            {
-              title: "Share the link in channel",
-              body: "Pin the poll URL. Teammates mark every slot they can make from any device.",
-            },
-            {
-              title: "Lock the slot with best overlap",
-              body: "Choose the time that works for the most people and send the calendar invite for that slot only.",
-            },
-          ]}
-        />
-      </ContentSection>
-
-      <ContentSection title="Related">
-        <p>
-          <Link to="/use-cases/team-meetings" className="font-semibold text-primary hover:underline">
-            Team meetings
-          </Link>
-          {" · "}
-          <Link to="/slack-scheduling" className="font-semibold text-primary hover:underline">
-            Slack scheduling guide
-          </Link>
-          {" · "}
-          <Link to="/guides/expected-responses" className="font-semibold text-primary hover:underline">
-            Expected responses
-          </Link>
-        </p>
+        <ContentSteps steps={STEPS} />
       </ContentSection>
 
       <ContentFaq faqs={faqs} />

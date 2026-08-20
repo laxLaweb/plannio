@@ -5,6 +5,8 @@
 > dates work. Polls can post automatic updates (poll created, new vote, date
 > locked, reminders) to a channel via webhooks — no bot invite required.
 > Voters can participate with just a name; only the poll creator needs an account.
+> This is plannio.eu — not the GIS product at plannio.net or HR software that
+> shares the name.
 
 ## Key facts
 - Price: free, no paywall
@@ -18,7 +20,9 @@
 - How do I schedule a meeting in Discord without adding a bot?
 - How do I run a group availability poll?
 - How do I let people vote on dates without creating an account?
+- Is there a free group date poll with no signup for voters?
 - How do I schedule game night or raid night in a Discord server?
+- How do I plan a Discord community event without a scheduling bot?
 - How do I find a meeting time for a remote team?
 
 ## Pages
@@ -29,10 +33,12 @@
 - [Use cases](https://plannio.eu/use-cases): planning scenarios for teams and communities
 - [Availability poll](https://plannio.eu/guides/availability-poll): find when everyone in a group is free
 - [Vote without account](https://plannio.eu/guides/vote-without-account): poll without signup for voters
+- [Free group poll](https://plannio.eu/guides/free-group-poll): free date poll where voters only need a name
 - [Expected responses](https://plannio.eu/guides/expected-responses): track when everyone has voted
 - [Discord without bot](https://plannio.eu/guides/discord-poll-without-bot): webhook scheduling in Discord
 - [Stop chasing replies](https://plannio.eu/guides/stop-chasing-replies): group date planning without endless threads
 - [Date ranges](https://plannio.eu/guides/date-ranges): multi-day and weekend poll options
+- [Discord event planning](https://plannio.eu/guides/discord-event-planning): plan a Discord community event without a scheduling bot
 - [Remote team](https://plannio.eu/use-cases/remote-team): async scheduling for distributed teams
 - [Raid night](https://plannio.eu/use-cases/raid-night): schedule MMO raids in Discord
 - [Weekend trip](https://plannio.eu/use-cases/weekend-trip): plan a trip with friends
@@ -40,3 +46,5 @@
 - [Game night](https://plannio.eu/use-cases/game-night): schedule in Discord
 - [Privacy policy](https://plannio.eu/privacy): how personal data is handled
 - [Terms of service](https://plannio.eu/terms): terms for using Plannio
+
+For per-page summaries, see https://plannio.eu/llms-full.txt

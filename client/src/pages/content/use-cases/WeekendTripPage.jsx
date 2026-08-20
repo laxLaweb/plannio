@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   ContentPage,
   ContentLead,
@@ -30,19 +29,56 @@ const faqs = [
   },
 ];
 
+const STEPS = [
+  {
+    title: "List the weekends you're considering",
+    body: "Create a poll and add each option as a date range — e.g. Fri 4 Jul – Sun 6 Jul, Fri 11 Jul – Sun 13 Jul. Mark them all-day if you don't have fixed times yet.",
+  },
+  {
+    title: "Share the link in your group",
+    body: "Drop the voting link in WhatsApp, iMessage, Discord, or Slack. Everyone opens it once and ticks every weekend that works.",
+  },
+  {
+    title: "Watch results fill in",
+    body: "The poll page shows vote counts per weekend. The option with the most overlap is your front-runner.",
+  },
+  {
+    title: "Pick the winner and tell everyone",
+    body: "Lock in the final date on the poll page. If you connected Discord or Slack, the group gets an update automatically.",
+  },
+];
+
+const RELATED = [
+  {
+    to: "/guides/date-ranges",
+    label: "How to propose multiple weekends in one poll",
+    desc: "Fri–Sun as one option instead of three day votes.",
+  },
+  {
+    to: "/use-cases/game-night",
+    label: "Schedule game night in your Discord server",
+    desc: "Same shared-link pattern for evenings, not trips.",
+  },
+  {
+    to: "/guides/vote-without-account",
+    label: "Let people vote without creating an account",
+    desc: "Friends should not need a new login to say which weekend works.",
+  },
+];
+
 export function WeekendTripPage() {
   return (
-    <ContentPage {...META} faqs={faqs}>
+    <ContentPage {...META} faqs={faqs} howToSteps={STEPS} relatedReads={RELATED}>
       <p className="text-sm font-semibold uppercase tracking-wider text-primary">Use case</p>
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
         Plan a weekend trip everyone can join
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">Last updated: July 2026</p>
+      <p className="mt-2 text-sm text-muted-foreground">Last updated: August 2026</p>
 
       <ContentLead>
-        Plannio is a free date-poll tool with built-in Discord and Slack channel updates. Create one
-        poll with several possible weekends, share a single link in your group chat, and see which
-        dates work for the most people — without a week of back-and-forth messages.
+        Create one poll with several possible weekends, share a single link in the group chat, and
+        see which dates work for the most people. Friends vote with a name — no extra accounts —
+        and optional Discord or Slack updates replace a week of back-and-forth messages.
       </ContentLead>
 
       <ContentSection title="The problem with planning trips in chat">
@@ -54,26 +90,7 @@ export function WeekendTripPage() {
       </ContentSection>
 
       <ContentSection title="How to plan a weekend trip with Plannio">
-        <ContentSteps
-          steps={[
-            {
-              title: "List the weekends you're considering",
-              body: "Create a poll and add each option as a date range — e.g. Fri 4 Jul – Sun 6 Jul, Fri 11 Jul – Sun 13 Jul. Mark them all-day if you don't have fixed times yet.",
-            },
-            {
-              title: "Share the link in your group",
-              body: "Drop the voting link in WhatsApp, iMessage, Discord, or Slack. Everyone opens it once and ticks every weekend that works.",
-            },
-            {
-              title: "Watch results fill in",
-              body: "The poll page shows vote counts per weekend. The option with the most overlap is your front-runner.",
-            },
-            {
-              title: "Pick the winner and tell everyone",
-              body: "Lock in the final date on the poll page. If you connected Discord or Slack, the group gets an update automatically.",
-            },
-          ]}
-        />
+        <ContentSteps steps={STEPS} />
       </ContentSection>
 
       <ContentSection title="Tips for friend groups">
@@ -82,18 +99,6 @@ export function WeekendTripPage() {
           <li>Set expected responses to your group size so you know when to stop waiting.</li>
           <li>Connect a Discord or Slack channel if you're coordinating there — votes post as they come in.</li>
         </ul>
-      </ContentSection>
-
-      <ContentSection title="Related">
-        <p>
-          <Link to="/use-cases/game-night" className="font-semibold text-primary hover:underline">
-            Schedule a game night
-          </Link>
-          {" · "}
-          <Link to="/guides/date-ranges" className="font-semibold text-primary hover:underline">
-            How to propose multiple weekends
-          </Link>
-        </p>
       </ContentSection>
 
       <ContentFaq faqs={faqs} />

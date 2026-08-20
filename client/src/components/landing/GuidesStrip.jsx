@@ -4,19 +4,19 @@ import { Reveal, SectionHeading } from "./Reveal";
 
 const guides = [
   {
-    label: "Availability poll",
-    href: "/guides/availability-poll",
-    desc: "Find when everyone in a group is free",
-  },
-  {
     label: "Discord scheduling",
     href: "/discord-scheduling",
     desc: "Channel updates without a bot",
   },
   {
-    label: "Vote without account",
-    href: "/guides/vote-without-account",
-    desc: "No signup required for voters",
+    label: "Without a Discord bot",
+    href: "/guides/discord-poll-without-bot",
+    desc: "Incoming webhook only — no extra member",
+  },
+  {
+    label: "Community event",
+    href: "/guides/discord-event-planning",
+    desc: "Find the time, then create a Discord Event",
   },
 ];
 

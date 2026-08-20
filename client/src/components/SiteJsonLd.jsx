@@ -10,8 +10,15 @@ export function SiteJsonLd() {
       "@type": "Organization",
       name: "Plannio",
       url: absoluteUrl("/"),
+      logo: absoluteUrl("/og-image.png"),
       description:
         "Free date polls for groups with built-in Discord and Slack channel updates.",
+      knowsAbout: [
+        "date poll",
+        "Discord scheduling",
+        "Slack meeting poll",
+        "group availability poll",
+      ],
       founder: { "@type": "Organization", name: SITE_OWNER.name },
     }),
     [],

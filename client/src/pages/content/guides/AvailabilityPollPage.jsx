@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import {
   ContentPage,
   ContentLead,
@@ -30,9 +29,50 @@ const faqs = [
   },
 ];
 
+const STEPS = [
+  {
+    title: "List your candidate dates",
+    body: "Add each day or date range in calendar or list view. Include times if they matter, or mark options as all-day.",
+  },
+  {
+    title: "Set expected responses (optional)",
+    body: "Enter how many people should answer — e.g. 8 for your team. Plannio shows progress like 5 / 8 responded.",
+  },
+  {
+    title: "Share the poll link",
+    body: "Post it in Slack, Discord, email, or group chat. Voters open the link and tap every date that works for them.",
+  },
+  {
+    title: "Read the overlap",
+    body: "Results update live. Pick the option with the most votes or the best mix of key people.",
+  },
+  {
+    title: "Lock the winning date",
+    body: "Finalize on the poll page. If you connected Discord or Slack, Plannio can post the locked date to your channel.",
+  },
+];
+
+const RELATED = [
+  {
+    to: "/guides/stop-chasing-replies",
+    label: "Stop chasing replies when planning group dates",
+    desc: "One link plus a progress count instead of a chat thread.",
+  },
+  {
+    to: "/use-cases/team-meetings",
+    label: "Find a meeting time your whole team can make",
+    desc: "Availability polls for work groups.",
+  },
+  {
+    to: "/guides/date-ranges",
+    label: "Propose multiple weekends in one poll",
+    desc: "Use ranges when the option is a whole trip, not a single hour.",
+  },
+];
+
 export function AvailabilityPollPage() {
   return (
-    <ContentPage {...META} faqs={faqs}>
+    <ContentPage {...META} faqs={faqs} howToSteps={STEPS} relatedReads={RELATED}>
       <p className="text-sm font-semibold uppercase tracking-wider text-primary">How-to</p>
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
         How to run a group availability poll
@@ -40,10 +80,9 @@ export function AvailabilityPollPage() {
       <p className="mt-2 text-sm text-muted-foreground">Last updated: July 2026</p>
 
       <ContentLead>
-        Plannio is a free date-poll tool with built-in Discord and Slack channel updates. An
-        availability poll means you list the dates you're considering, share one link, and everyone
-        marks which options work — so you find when the whole group is free without back-and-forth
-        messages.
+        A group availability poll is a shared list of dates where each person marks every option
+        that works. You find the overlap in one place — no back-and-forth messages — then lock the
+        winner. Optional Discord or Slack updates tell the channel when people have voted.
       </ContentLead>
 
       <ContentSection title="When to use an availability poll">
@@ -55,46 +94,7 @@ export function AvailabilityPollPage() {
       </ContentSection>
 
       <ContentSection title="Steps to run an availability poll">
-        <ContentSteps
-          steps={[
-            {
-              title: "List your candidate dates",
-              body: "Add each day or date range in calendar or list view. Include times if they matter, or mark options as all-day.",
-            },
-            {
-              title: "Set expected responses (optional)",
-              body: "Enter how many people should answer — e.g. 8 for your team. Plannio shows progress like 5 / 8 responded.",
-            },
-            {
-              title: "Share the poll link",
-              body: "Post it in Slack, Discord, email, or group chat. Voters open the link and tap every date that works for them.",
-            },
-            {
-              title: "Read the overlap",
-              body: "Results update live. Pick the option with the most votes or the best mix of key people.",
-            },
-            {
-              title: "Lock the winning date",
-              body: "Finalize on the poll page. If you connected Discord or Slack, Plannio can post the locked date to your channel.",
-            },
-          ]}
-        />
-      </ContentSection>
-
-      <ContentSection title="Related">
-        <p>
-          <Link to="/guides/stop-chasing-replies" className="font-semibold text-primary hover:underline">
-            Stop chasing replies
-          </Link>
-          {" · "}
-          <Link to="/use-cases/team-meetings" className="font-semibold text-primary hover:underline">
-            Team meeting scheduling
-          </Link>
-          {" · "}
-          <Link to="/guides/date-ranges" className="font-semibold text-primary hover:underline">
-            Multi-day date ranges
-          </Link>
-        </p>
+        <ContentSteps steps={STEPS} />
       </ContentSection>
 
       <ContentFaq faqs={faqs} />

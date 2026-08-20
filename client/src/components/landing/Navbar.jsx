@@ -9,12 +9,16 @@ import { UserAvatar } from "@/components/auth/UserAvatar";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 
-const links = [
+const hashLinks = [
   { label: "Features", href: "#features" },
   { label: "How it works", href: "#how" },
-  { label: "Product", href: "#showcase" },
   { label: "Pricing", href: "#pricing" },
   { label: "FAQ", href: "#faq" },
+];
+
+const contentLinks = [
+  { label: "Discord", to: "/discord-scheduling" },
+  { label: "Guides", to: "/guides" },
 ];
 
 function UserMenu() {
@@ -96,9 +100,9 @@ export function Navbar({ showNavLinks = true }) {
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
         <Logo />
 
-        {showNavLinks && (
-          <div className="hidden items-center gap-1 md:flex">
-            {links.map((l) => (
+        <div className="hidden items-center gap-1 md:flex">
+          {showNavLinks &&
+            hashLinks.slice(0, 2).map((l) => (
               <a
                 key={l.label}
                 href={l.href}
@@ -107,8 +111,26 @@ export function Navbar({ showNavLinks = true }) {
                 {l.label}
               </a>
             ))}
-          </div>
-        )}
+          {contentLinks.map((l) => (
+            <Link
+              key={l.to}
+              to={l.to}
+              className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {l.label}
+            </Link>
+          ))}
+          {showNavLinks &&
+            hashLinks.slice(2).map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {l.label}
+              </a>
+            ))}
+        </div>
 
         <div className="hidden items-center gap-2 md:flex">
           <UserMenu />
@@ -140,7 +162,28 @@ export function Navbar({ showNavLinks = true }) {
           >
             <div className="flex flex-col gap-1 px-5 py-4">
               {showNavLinks &&
-                links.map((l) => (
+                hashLinks.slice(0, 2).map((l) => (
+                  <a
+                    key={l.label}
+                    href={l.href}
+                    onClick={(event) => handleMobileSectionClick(event, l.href)}
+                    className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  >
+                    {l.label}
+                  </a>
+                ))}
+              {contentLinks.map((l) => (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  {l.label}
+                </Link>
+              ))}
+              {showNavLinks &&
+                hashLinks.slice(2).map((l) => (
                   <a
                     key={l.label}
                     href={l.href}

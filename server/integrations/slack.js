@@ -12,7 +12,7 @@ function getWebhookConfig() {
   const clientSecret = process.env.SLACK_CLIENT_SECRET;
   const redirectUri =
     process.env.SLACK_WEBHOOK_REDIRECT_URI ||
-    "http://localhost:5000/api/integrations/slack/callback";
+    "http://localhost:5050/api/integrations/slack/callback";
 
   if (!clientId || !clientSecret) {
     return null;

@@ -13,17 +13,17 @@ This document is written to be executed step by step by an AI model. Each task
 has: exact file paths, code to write, and acceptance criteria. Do the phases in
 order — Phase 1 is a prerequisite for everything else.
 
-## Implementation progress (last updated: July 2026)
+## Implementation progress (last updated: August 2026)
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Phase 1 — Technical SEO | **Done** | Lighthouse SEO 100/100; mobile perf 73 — re-measure after next deploy |
-| Phase 2 — On-page landing | **Done** | Guides strip, full a11y audit, breadcrumbs on content pages |
-| Phase 3 — Content pages | **Expanded** | 13 content pages + 2 hub pages (July 2026 keyword expansion) |
-| Phase 4 — GEO | **Mostly done** | prerender wired to heroku-postbuild; verify after deploy |
-| Phase 5 — Off-page | **Not started** | Requires user (Appendix A + directory listings) |
-| Phase 6 — Measurement | **Prepared** | Scorecard §6.1; SEO 672/1000, GEO 584/1000 (Jul 2026) |
-| Appendix A | **Not started** | User has not created Google/Bing/analytics accounts yet |
+| Phase 1 — Technical SEO | **Done** | Lighthouse SEO 100/100 |
+| Phase 2 — On-page landing | **Done** | Homepage title includes date poll; nav links to Discord + Guides |
+| Phase 3 — Content pages | **Expanded** | 14 content pages + 2 hubs; Discord cluster deepened Aug 2026 |
+| Phase 4 — GEO | **Mostly done** | llms.txt + llms-full.txt; prerender on heroku-postbuild |
+| Phase 5 — Off-page | **Drafts ready** | AlternativeTo + Reddit copy in docs/; user must publish |
+| Phase 6 — Measurement | **User-gated** | See `docs/gsc-bing-checklist.md` + `docs/geo-audit-log.md` |
+| Appendix A | **Partial** | HTML verification files exist; GSC sitemap + indexing still on user |
 
 **Legend:** `- [x]` = implemented in repo · `- [ ]` = not done or not verified
 
@@ -51,7 +51,7 @@ order — Phase 1 is a prerequisite for everything else.
 
 ## Current state (updated after implementation, July 2026)
 
-- [x] `client/public/` exists with `robots.txt`, `sitemap.xml`, `llms.txt`, `og-image.png`
+- [x] `client/public/` exists with `robots.txt`, `sitemap_new.xml` (canonical), `llms.txt`, `og-image.png`
 - [x] All title/meta/OG/Twitter tags rendered per-route by `PageMeta.jsx` (removed
       static duplicates from `client/index.html` — React 19 hoists PageMeta tags)
 - [x] `PageMeta.jsx` on all routes; `JsonLd` on landing + content pages
@@ -347,9 +347,11 @@ decorative mockups (PollMockup, BrowserBar), and FeatureCard icons audited.**
 
 ## Phase 3 — Content pages (the main ranking lever) — [x] done
 
-**Do not write competitor comparison pages** (no `/vs/doodle`, no "Plannio vs
-X" content). Focus entirely on Plannio's own product, integrations, and use
-cases. This keeps the site on-brand and avoids maintaining competitor facts.
+**Do not write competitor hatchet pages** (no `/vs/doodle` feature tables that
+go stale). A later high-intent guide is allowed once the Discord cluster has
+GSC impressions: one page such as `/guides/free-group-poll` that answers
+“voters need only a name” without maintaining competitor facts. Discord
+pages ship first.
 
 A SPA route is fine for Google (it renders JS), but every content page must be
 a real route with unique metadata via `PageMeta`, listed in `sitemap.xml`, and
@@ -443,9 +445,11 @@ on the site.
 | **Use case** | Scenario-based long-tail | remote team scheduling, raid night discord, schedule game night discord, plan weekend trip |
 | **GEO prompts** | AI assistant queries (track in `docs/geo-audit-log.md`) | "best free date poll tool with Discord integration", "how to schedule a meeting in Discord without a bot" |
 
-**Do not target** (product mismatch or out of scope): recurring meeting scheduler,
-timezone/world-clock poll, Calendly-style 1:1 booking, competitor comparison pages
-(`/vs/doodle`, etc.).
+**Do not target** (product mismatch): recurring meeting scheduler,
+timezone/world-clock poll, Calendly-style 1:1 booking. Competitor `/vs/`
+feature tables stay out of scope. One later no-signup / free-group-poll
+guide is in scope after Discord URLs show impressions (see Phase 3.5 future
+candidates).
 
 ### New pages shipped — [x]
 
@@ -458,6 +462,8 @@ timezone/world-clock poll, Calendly-style 1:1 booking, competitor comparison pag
 | `/guides/expected-responses` | track poll responses, know when everyone voted, scheduling poll reminder | "Track expected responses on a date poll" |
 | `/use-cases/remote-team` | remote team scheduling, async team meeting poll, distributed team find time | "Find meeting times for a remote team" |
 | `/use-cases/raid-night` | discord raid scheduling, schedule raid night discord, mmo guild scheduling | "Schedule raid night in your Discord server" |
+| `/guides/discord-event-planning` | plan discord event, discord community event scheduling | "Plan a Discord community event" (Aug 2026) |
+| `/guides/free-group-poll` | free group poll, free date poll no signup | "Free group date poll — voters only need a name" (Aug 2026) |
 
 ### Existing pages — keyword map (unchanged URLs)
 
@@ -471,7 +477,7 @@ timezone/world-clock poll, Calendly-style 1:1 booking, competitor comparison pag
 | `/guides/date-ranges` | multi-day date poll, weekend poll, Friday to Sunday poll |
 | `/use-cases/weekend-trip` | plan weekend trip friends, group date poll trip |
 | `/use-cases/team-meetings` | find meeting time team poll free, team scheduling poll |
-| `/use-cases/game-night` | schedule game night discord, discord community event |
+| `/use-cases/game-night` | schedule game night discord, discord game night poll |
 
 ### Future candidates (not yet built)
 
@@ -482,7 +488,6 @@ Ship only when there is a distinct query and ≥600 words of unique content:
 | `/use-cases/friend-group` | plan hangout with friends, friend group scheduling |
 | `/use-cases/birthday-party` | birthday party date poll |
 | `/guides/find-common-time` | find a time everyone can meet (stronger standalone angle) |
-| `/guides/discord-event-planning` | plan discord event, discord community event scheduling |
 
 Acceptance: all new routes in `shared/content-routes.mjs`, registered in
 `App.jsx`, linked from footer + hub pages, regenerated sitemap/llms.txt via
@@ -533,17 +538,12 @@ User-agent: Google-Extended
 Allow: /
 ```
 
-### 4.3 llms.txt — [x]
+### 4.3 llms.txt and llms-full.txt — [x]
 
-Create `client/public/llms.txt` — a plain-markdown summary AI agents can
-fetch. Content:
-
-```
-# Plannio
-… (see `client/public/llms.txt` — lists all indexable pages from `shared/content-routes.mjs`) …
-```
-
-Keep it updated whenever Phase-3 pages ship (same commit). **[x] All pages listed.**
+`client/public/llms.txt` is the short entity card. `llms-full.txt` has a
+3–5 sentence summary per public route from `shared/content-routes.mjs`
+(`llmsSummary`). Both regenerate via `npm run generate-llms`. Keep the
+definition sentence in these files, not as a cloned lead on every HTML page.
 
 ### 4.4 Write content so models can quote it — [x]
 
@@ -551,10 +551,12 @@ Apply these rules to every Phase-3 page (add to the page checklist):
 
 - Open each page with a 2–3 sentence **direct answer** to the target query,
   before any storytelling. AI answers lift these verbatim.
-- Use one **definition-style sentence** naming the entity exactly:
-  "Plannio is a free date-poll tool with built-in Discord and Slack channel
-  updates." Reuse this sentence verbatim across pages, the llms.txt, and all
-  directory listings — consistent phrasing is how models learn the entity.
+- Keep one **definition-style sentence** in `llms.txt`, Organization schema,
+  and directory listings: "Plannio is a free date-poll tool with built-in
+  Discord and Slack channel updates." Do **not** paste that sentence as the
+  first paragraph on every HTML page (duplicate-looking leads).
+- Disambiguate the entity: this product is **plannio.eu**, not plannio.net GIS
+  or other products named Plannio.
 - Prefer **tables and numbered steps** over prose walls; include concrete
   numbers ("free", "4 events posted automatically", "no bot invite").
 - Add "Last updated: {Month Year}" visibly on integration and how-to pages —
@@ -624,40 +626,40 @@ low for months on a new domain.
 
 #### SEO score (max 1000)
 
-| Category | Max | Jul 2026 | What moves it |
-|----------|-----|----------|---------------|
-| Technical foundation | 150 | 142 | Lighthouse SEO, robots/sitemap, HTTPS, prerender, headers |
-| On-page content | 200 | 158 | Content pages, hubs, unique metadata, FAQ copy |
-| Keyword coverage | 150 | 118 | Phase 3.5 map; add pages for tier-4 only when ready |
-| Internal linking | 75 | 68 | Footer, hubs, GuidesStrip, sibling links |
-| Structured data | 75 | 62 | FAQ, breadcrumbs, Organization; fix prerender head leaks |
-| Performance (CWV) | 100 | 78 | Mobile Lighthouse; immutable asset caching |
-| Indexation & GSC | 100 | 32 | Green sitemap, crawl stats, impressions per page |
-| Off-page / authority | 150 | 18 | Directories, backlinks, community citations |
-| **SEO total** | **1000** | **672** | |
+| Category | Max | Jul 2026 | Aug 2026 | What moves it |
+|----------|-----|----------|----------|---------------|
+| Technical foundation | 150 | 142 | 144 | Lighthouse SEO, robots/sitemap, HTTPS, prerender, uncompressed llms |
+| On-page content | 200 | 158 | 174 | Discord cluster depth, unique leads, HowTo copy |
+| Keyword coverage | 150 | 118 | 126 | Event-planning page; Discord-first map |
+| Internal linking | 75 | 68 | 74 | Nav Discord/Guides, RelatedReads |
+| Structured data | 75 | 62 | 70 | HowTo JSON-LD, Organization logo |
+| Performance (CWV) | 100 | 78 | 78 | Unchanged this month |
+| Indexation & GSC | 100 | 32 | 32 | Still user-gated — see gsc-bing-checklist.md |
+| Off-page / authority | 150 | 18 | 20 | Drafts in docs/; listings not live |
+| **SEO total** | **1000** | **672** | **718** | |
 
 #### GEO score (max 1000)
 
-| Category | Max | Jul 2026 | What moves it |
-|----------|-----|----------|---------------|
-| AI crawlability | 150 | 145 | Prerender, explicit bot Allow in robots.txt |
-| llms.txt & entity | 150 | 135 | llms.txt freshness, consistent definition sentence |
-| Quotable content | 200 | 165 | Direct answers, FAQ JSON-LD, dated pages |
-| Structured discoverability | 100 | 85 | Organization schema, hubs, llms.txt link in `<head>` |
-| Third-party corroboration | 200 | 15 | AlternativeTo, Reddit, Product Hunt, Slack directory |
-| GEO measurement | 100 | 30 | `docs/geo-audit-log.md`, AI referrer segments in analytics |
-| Actual AI visibility | 100 | 15 | Mentioned/cited in ChatGPT, Perplexity, Gemini audits |
-| **GEO total** | **1000** | **584** | |
+| Category | Max | Jul 2026 | Aug 2026 | What moves it |
+|----------|-----|----------|----------|---------------|
+| AI crawlability | 150 | 145 | 146 | Prerender, explicit bot Allow, uncompressed llms |
+| llms.txt & entity | 150 | 135 | 144 | llms-full.txt, plannio.eu disambiguation |
+| Quotable content | 200 | 165 | 178 | Query-first leads, Discord facts, HowTo+FAQ |
+| Structured discoverability | 100 | 85 | 90 | Organization logo, nav, llms-full in `<head>` |
+| Third-party corroboration | 200 | 15 | 15 | AlternativeTo/Reddit still unpublished |
+| GEO measurement | 100 | 30 | 42 | First web-index baseline in geo-audit-log.md |
+| Actual AI visibility | 100 | 15 | 15 | ChatGPT/Perplexity/Gemini still pending user |
+| **GEO total** | **1000** | **584** | **630** | |
 
-#### Combined snapshot (Jul 2026)
+#### Combined snapshot (Aug 2026)
 
 | Metric | Score |
 |--------|-------|
-| SEO | **672 / 1000** |
-| GEO | **584 / 1000** |
-| Average | **628 / 1000** |
-| Foundation (tech + content + crawl) | ~780 / 1000 |
-| Market (indexation + off-page + citations) | ~180 / 1000 |
+| SEO | **718 / 1000** |
+| GEO | **630 / 1000** |
+| Average | **674 / 1000** |
+| Foundation (tech + content + crawl) | ~820 / 1000 |
+| Market (indexation + off-page + citations) | ~190 / 1000 |
 
 **Target after 6 months** (with Phase 5 done): SEO **750–820**, GEO **680–760**.
 
@@ -667,6 +669,7 @@ row below when re-scoring:
 | Month | SEO | GEO | Notes |
 |-------|-----|-----|-------|
 | 2026-07 | 672 | 584 | 18 URLs, Phase 3.5 shipped; GSC sitemap pending; no off-page |
+| 2026-08 | 718 | 630 | 19 URLs, Discord depth, nav, HowTo, llms-full; GSC/off-page still user |
 
 #### Quick wins checklist (revisit each month)
 
@@ -677,16 +680,21 @@ row below when re-scoring:
 - [x] Prerender: fresh browser page per route (no head-tag leak)
 - [x] Organization JSON-LD on all routes (`SiteJsonLd.jsx`)
 - [x] llms.txt GEO prompt section
+- [x] llms-full.txt per-page summaries
+- [x] Homepage title includes “date poll”; nav links to Discord + Guides
+- [x] HowTo JSON-LD on guide/use-case steps; Organization `logo`
+- [x] Discord cluster unique openings (no cloned definition lead)
 - [ ] Fix any remaining duplicate `<title>`/canonical in prerender output (verify post-deploy)
 - [ ] Organization `sameAs` when social/profile URLs exist
 
 **User (Appendix A + Phase 5):**
 
-- [ ] Deploy latest + resubmit sitemap in GSC
+- [ ] Deploy latest + resubmit sitemap in GSC — `docs/gsc-bing-checklist.md`
 - [ ] Import Bing Webmaster from GSC
-- [ ] URL inspection → request indexing for 3–5 new pages
-- [ ] AlternativeTo listing (use definition sentence from Phase 4.4)
-- [ ] First monthly GEO audit (`docs/geo-audit-log.md`)
+- [ ] URL inspection → request indexing for Discord cluster + event-planning
+- [ ] AlternativeTo listing — `docs/alternativeto-listing.md`
+- [ ] First three Reddit replies — `docs/reddit-replies.md`
+- [ ] Finish ChatGPT / Perplexity / Gemini rows in `docs/geo-audit-log.md`
 - [ ] Umami/Plausible live for AI referrer tracking
 
 ---
@@ -695,8 +703,8 @@ row below when re-scoring:
 2. [x] Phase 2 — done (a11y, breadcrumbs, schema on content pages)
 3. [x] Phase 4.1–4.3 wired; [ ] verify prerender output in production
 4. [x] Phase 3 — all content pages shipped
-5. [ ] Hand Appendix A + Phase 5 checklist to the user — **pending user action**
-6. [ ] Phase 6 after user completes Appendix A
+5. [x] Appendix A + Phase 5 copy handed to the user (`docs/gsc-bing-checklist.md`, `docs/alternativeto-listing.md`, `docs/reddit-replies.md`)
+6. [ ] Phase 6 after user completes GSC/Bing and first directory listing
 
 ---
 
@@ -723,7 +731,7 @@ the sitemap so Google indexes new pages fast.
    like `<meta name="google-site-verification" content="ABC123..." />` —
    copy it, give it to the executor model, and have it added to
    `client/index.html`. Deploy, then click "Verify".
-4. Once verified: left menu → "Sitemaps" → enter `sitemap.xml` → Submit.
+4. Once verified: left menu → "Sitemaps" → enter `sitemap_new.xml` → Submit.
 5. Optional but useful: "URL inspection" → paste a new page's URL → "Request
    indexing" whenever you publish a content page.
 

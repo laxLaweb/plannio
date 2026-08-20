@@ -52,7 +52,7 @@ npm run dev
 ```
 
 - Frontend: http://localhost:3000
-- API: http://localhost:5000/api/health
+- API: http://localhost:5050/api/health
 
 ## Database (Heroku Postgres)
 
@@ -105,7 +105,7 @@ Plannio understøtter social login via OAuth2 – samme princip som "Log ind med
 
 1. Opret en app på [Discord Developer Portal](https://discord.com/developers/applications)
 2. Under **OAuth2** → tilføj redirect URL:
-   - Lokal: `http://localhost:5000/api/auth/discord/callback`
+   - Lokal: `http://localhost:5050/api/auth/discord/callback`
    - Heroku: `https://din-app.herokuapp.com/api/auth/discord/callback`
 3. Kopiér Client ID og Client Secret til `.env`:
 
@@ -113,7 +113,7 @@ Plannio understøtter social login via OAuth2 – samme princip som "Log ind med
 SESSION_SECRET=generer-en-lang-tilfaeldig-streng
 DISCORD_CLIENT_ID=din-client-id
 DISCORD_CLIENT_SECRET=din-client-secret
-DISCORD_REDIRECT_URI=http://localhost:5000/api/auth/discord/callback
+DISCORD_REDIRECT_URI=http://localhost:5050/api/auth/discord/callback
 APP_URL=http://localhost:3000
 ```
 
@@ -153,7 +153,7 @@ beskeder sendes til.
 Opsætning (samme Discord-app som login):
 
 1. Under **OAuth2** → tilføj endnu en redirect URL:
-   - Lokal: `http://localhost:5000/api/integrations/discord/callback`
+   - Lokal: `http://localhost:5050/api/integrations/discord/callback`
    - Heroku: `https://din-app.herokuapp.com/api/integrations/discord/callback`
 2. Sæt `DISCORD_WEBHOOK_REDIRECT_URI` i `.env` (se `.env.example`).
 

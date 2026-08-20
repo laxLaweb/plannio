@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowRight, Play, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,9 +43,17 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.12 }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground"
           >
-            Create a date poll with calendar or list view, share the link in Discord or Slack, and get
-            channel updates when people respond. Require Discord or Slack login — or let people vote
-            with just a name.
+            Create a free date poll with calendar or list view, share the link in Discord or Slack, and
+            get channel updates when people respond. Require Discord or Slack login — or let people
+            vote with just a name.{" "}
+            <Link to="/guides/free-group-poll" className="font-semibold text-primary hover:underline">
+              Free group poll
+            </Link>
+            {" · "}
+            <Link to="/discord-scheduling" className="font-semibold text-primary hover:underline">
+              Discord without a bot
+            </Link>
+            .
           </motion.p>
 
           <motion.div

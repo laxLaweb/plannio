@@ -15,7 +15,7 @@ URL — no bot install, no extra Slack app permissions needed.
 1. Go to https://api.slack.com/apps → **Create New App** → "From scratch".
 2. Name it "Plannio", pick your development workspace.
 3. Under **OAuth & Permissions**:
-   - Add a **Redirect URL**: `http://localhost:5000/api/integrations/slack/callback`
+   - Add a **Redirect URL**: `http://localhost:5050/api/integrations/slack/callback`
      (and the production URL once deployed, e.g.
      `https://<your-app>.herokuapp.com/api/integrations/slack/callback`).
    - Under "Scopes" → **Bot Token Scopes** is not needed. Instead, under
@@ -32,7 +32,7 @@ URL — no bot install, no extra Slack app permissions needed.
    ```
    SLACK_CLIENT_ID=...
    SLACK_CLIENT_SECRET=...
-   SLACK_WEBHOOK_REDIRECT_URI=http://localhost:5000/api/integrations/slack/callback
+   SLACK_WEBHOOK_REDIRECT_URI=http://localhost:5050/api/integrations/slack/callback
    ```
 
    No separate "login" redirect is needed — Slack sign-in as a login method is
